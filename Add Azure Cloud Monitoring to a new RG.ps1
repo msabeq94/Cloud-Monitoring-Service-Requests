@@ -1,9 +1,9 @@
 
 # Define the new resource group to add to the scope
 $subscriptionID = Read-Host "enter the subscription ID"
-$rg = Read-Host "enter the new Resoucr group name to Monitoring"
+$rgtoAdd = Read-Host "enter the new Resoucr group name to Monitor"
 $alertRulesLocation = Read-Host "enter the Resoucr group of the alerts"
-$newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rg"
+$newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rgtoAdd"
 
 # Get all metric alert rules in the VF-Core resource group
 $alertRules = Get-AzMetricAlertRuleV2 -ResourceGroupName $alertRulesLocation
@@ -20,8 +20,8 @@ foreach ($rule in $alertRules) {
         # Update the alert rule with the new scopes
         Add-AzMetricAlertRuleV2 -ResourceGroupName $alertRulesLocation -Name $rule.Name -TargetResourceScope $newScopes -WindowSize $rule.WindowSize -Frequency $rule.EvaluationFrequency -Severity $rule.Severity  -Condition $rule.Criteria -TargetResourceType $rule.TargetResourceType -TargetResourceRegion $rule.TargetResourceRegion
 
-        Write-Output "Updated alert rule $($rule.Name) with new scope $($newResourceGroup)"
+        Write-Output "Resource Group $($rgtoAdd) added to the scope of alert name $($rule.Name)"
     } else {
-        Write-Output "Alert rule $($rule.Name) already includes scope $($newResourceGroup)"
+        Write-Output "Alert rule $($rule.Name) already includes Resource Group $($rgtoAdd)"
     }
 }
