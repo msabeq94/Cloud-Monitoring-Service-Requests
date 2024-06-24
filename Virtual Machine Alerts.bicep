@@ -3,6 +3,7 @@ param vmlocation string = 'uksouth'
 param newActionGroupId string = '/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/actiongroups/ vf-core-cm-notifications'
 param subscriptionId string = subscription().subscriptionId
 param customerRGScope string = '/subscriptions/${subscriptionId}/resourceGroups/${vmAlertProcessingRuleScope}'
+
  
  
 // monitoring alert rule for CPU Percentage Exceeded
