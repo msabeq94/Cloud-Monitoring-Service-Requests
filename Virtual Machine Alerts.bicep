@@ -1,5 +1,5 @@
 param vmAlertProcessingRuleScope string = 'VF-CloudMonitoring'
-param vmlocation string = 'uksouth'
+param vmlocations string = 'uksouth'
 param newActionGroupId string = '/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/actiongroups/ vf-core-cm-notifications'
 param subscriptionId string = subscription().subscriptionId
 param customerRGScope string = '/subscriptions/${subscriptionId}/resourceGroups/${vmAlertProcessingRuleScope}'
@@ -8,7 +8,7 @@ param customerRGScope string = '/subscriptions/${subscriptionId}/resourceGroups/
  
 // monitoring alert rule for CPU Percentage Exceeded
 resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
-  name: 'vf-core-cm-vm-cpu-percentage-${vmlocation}'
+  name: 'vf-core-cm-vm-cpu-percentage-${vmlocations}'
   location: 'Global'
   tags: {
     DeployedBy: 'Vodafone'
@@ -39,7 +39,7 @@ resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     }
     autoMitigate: true
     targetResourceType: 'microsoft.compute/virtualmachines'
-    targetResourceRegion: vmlocation
+    targetResourceRegion: vmlocations
     actions: [
       {
         actionGroupId: newActionGroupId
@@ -52,7 +52,7 @@ resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
 // monitoring alert rule for available memory bytes
  
 resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
-  name: 'vf-core-cm-vm-available-memory-${vmlocation}'
+  name: 'vf-core-cm-vm-available-memory-${vmlocations}'
   location: 'Global'
   tags: {
     DeployedBy: 'Vodafone'
@@ -83,7 +83,7 @@ resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     }
     autoMitigate: true
     targetResourceType: 'microsoft.compute/virtualmachines'
-    targetResourceRegion: vmlocation
+    targetResourceRegion: vmlocations
     actions: [
       {
         actionGroupId: newActionGroupId
@@ -96,7 +96,7 @@ resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
 // monitoring alert rule for consumed IOPS percentage on the data disk
  
 resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
-  name: 'vf-core-cm-vm-data-disk-iops-consumed-percentage-${vmlocation}'
+  name: 'vf-core-cm-vm-data-disk-iops-consumed-percentage-${vmlocations}'
   location: 'Global'
   tags: {
     DeployedBy: 'Vodafone'
@@ -127,7 +127,7 @@ resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     }
     autoMitigate: true
     targetResourceType: 'microsoft.compute/virtualmachines'
-    targetResourceRegion: vmlocation
+    targetResourceRegion: vmlocations
     actions: [
       {
         actionGroupId: newActionGroupId
@@ -141,7 +141,7 @@ resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
 // monitoring alert rule for consumed IOPS percentage on the OS disk
  
 resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
-  name: 'vf-core-cm-VM-os-disk-iops-consumed-percentage-${vmlocation}'
+  name: 'vf-core-cm-VM-os-disk-iops-consumed-percentage-${vmlocations}'
   location: 'Global'
   tags: {
     DeployedBy: 'Vodafone'
@@ -172,7 +172,7 @@ resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     }
     autoMitigate: true
     targetResourceType: 'microsoft.compute/virtualmachines'
-    targetResourceRegion: vmlocation
+    targetResourceRegion: vmlocations
     actions: [
       {
         actionGroupId: newActionGroupId
@@ -186,7 +186,7 @@ resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
 // monitoring alert rule for VM availability
  
 resource vmAvailabilityAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
-  name: 'vf-core-cm-vm-availability-${vmlocation}'
+  name: 'vf-core-cm-vm-availability-${vmlocations}'
   location: 'Global'
   tags: {
     DeployedBy: 'Vodafone'
@@ -217,7 +217,7 @@ resource vmAvailabilityAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     }
     autoMitigate: true
     targetResourceType: 'microsoft.compute/virtualmachines'
-    targetResourceRegion: vmlocation
+    targetResourceRegion: vmlocations
     actions: [
       {
         actionGroupId: newActionGroupId
