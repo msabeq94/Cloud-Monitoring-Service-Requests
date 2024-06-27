@@ -1,0 +1,260 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.28.1.47646",
+      "templateHash": "3953206689209363669"
+    }
+  },
+  "parameters": {
+    "vmAlertProcessingRuleScope": {
+      "type": "string",
+      "defaultValue": "VF-CloudMonitoring"
+    },
+    "vmlocations": {
+      "type": "string",
+      "defaultValue": "uksouth"
+    },
+    "newActionGroupId": {
+      "type": "string",
+      "defaultValue": "/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/actiongroups/ vf-core-cm-notifications"
+    },
+    "subscriptionId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
+    },
+    "customerRGScope": {
+      "type": "string",
+      "defaultValue": "[format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('vmAlertProcessingRuleScope'))]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('vf-core-cm-vm-cpu-percentage-{0}', parameters('vmlocations'))]",
+      "location": "Global",
+      "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+      },
+      "properties": {
+        "description": "CIS VM- CPU Percentage Exceeded The Threshold",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[parameters('customerRGScope')]"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "allOf": [
+            {
+              "threshold": 85,
+              "name": "Percentage CPU",
+              "metricNamespace": "microsoft.compute/virtualmachines",
+              "metricName": "Percentage CPU",
+              "operator": "GreaterThan",
+              "timeAggregation": "Average",
+              "skipMetricValidation": false,
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "[parameters('vmlocations')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('newActionGroupId')]",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('vf-core-cm-vm-available-memory-{0}', parameters('vmlocations'))]",
+      "location": "Global",
+      "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+      },
+      "properties": {
+        "description": "Alert when available memory bytes falls below threshold",
+        "severity": 3,
+        "enabled": true,
+        "scopes": [
+          "[parameters('customerRGScope')]"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "allOf": [
+            {
+              "threshold": 1,
+              "name": "Available Memory Bytes",
+              "metricNamespace": "microsoft.compute/virtualmachines",
+              "metricName": "Available Memory Bytes",
+              "operator": "LessThan",
+              "timeAggregation": "Average",
+              "skipMetricValidation": false,
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "[parameters('vmlocations')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('newActionGroupId')]",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('vf-core-cm-vm-data-disk-iops-consumed-percentage-{0}', parameters('vmlocations'))]",
+      "location": "Global",
+      "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+      },
+      "properties": {
+        "description": "Alert for Data Disk IOPS Consumed Percentage",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[parameters('customerRGScope')]"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "allOf": [
+            {
+              "threshold": 95,
+              "name": "Data Disk IOPS consumed Percentage",
+              "metricNamespace": "microsoft.compute/virtualmachines",
+              "metricName": "Data Disk IOPS consumed Percentage",
+              "operator": "GreaterThan",
+              "timeAggregation": "Average",
+              "skipMetricValidation": false,
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "[parameters('vmlocations')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('newActionGroupId')]",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('vf-core-cm-VM-os-disk-iops-consumed-percentage-{0}', parameters('vmlocations'))]",
+      "location": "Global",
+      "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+      },
+      "properties": {
+        "description": "Alert for OS Disk IOPS Consumed Percentage",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+          "[parameters('customerRGScope')]"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "allOf": [
+            {
+              "threshold": 95,
+              "name": "OS Disk IOPS Consumed Percentage",
+              "metricNamespace": "microsoft.compute/virtualmachines",
+              "metricName": "OS Disk IOPS Consumed Percentage",
+              "operator": "GreaterThan",
+              "timeAggregation": "Average",
+              "skipMetricValidation": false,
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "[parameters('vmlocations')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('newActionGroupId')]",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Insights/metricAlerts",
+      "apiVersion": "2018-03-01",
+      "name": "[format('vf-core-cm-vm-availability-{0}', parameters('vmlocations'))]",
+      "location": "Global",
+      "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+      },
+      "properties": {
+        "description": "Alert for VM Availability",
+        "severity": 0,
+        "enabled": true,
+        "scopes": [
+          "[parameters('customerRGScope')]"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+          "allOf": [
+            {
+              "threshold": 1,
+              "name": "VM Availability",
+              "metricNamespace": "microsoft.compute/virtualmachines",
+              "metricName": "VmAvailabilityMetric",
+              "operator": "LessThan",
+              "timeAggregation": "Average",
+              "skipMetricValidation": false,
+              "criterionType": "StaticThresholdCriterion"
+            }
+          ],
+          "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "[parameters('vmlocations')]",
+        "actions": [
+          {
+            "actionGroupId": "[parameters('newActionGroupId')]",
+            "webHookProperties": {}
+          }
+        ]
+      }
+    }
+  ]
+}

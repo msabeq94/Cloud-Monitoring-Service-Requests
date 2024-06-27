@@ -2,23 +2,32 @@
 $subscriptionID = Read-Host "Enter the subscription ID"
 $AlertRG = Read-Host "Enter the Resource group of the alerts"
 $rgtoAdd = Read-Host "Enter the new Resource group name to monitor"
-$actionGroupName =  Read-Host "Enter the Action Grpup name"
+$actionGroupName = Read-Host "Enter the Action Grpup name"
 $VMlocation = Read-Host "enter the VMs location to monitor"
 
-$ActionGroupId = "/subscriptions/$subscriptionID/resourceGroups/$AlertRG/providers/microsoft.insights/actiongroups/$actionGroupName"
+
+$ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGroupName ).id
+
+
 $newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rgtoAdd"
-$AlertLocation= "Global"
 $EvaluationFrequency = "0:5"
 $WindowSize = "0:15"
 $TimeAggregation = 'Average'
 $MetricNamespace = "microsoft.compute/virtualmachines"
 
 
-$CommonTags = @{
-    "DeployedBy" = "Vodafone"
-    "VodafoneBuildVersion" = "vf-build-v1"
-    "VodafoneProduct" = "Cloud Monitoring"
-}
+# $CommonTags = @{
+#     "DeployedBy"="Vodafone" ;
+#     "VodafoneBuildVersion"="vf-build-v1";
+#     "VodafoneProduct"="Cloud Monitoring" 
+# } 
+
+# Debug output to verify variables
+Write-Output "Subscription ID: $subscriptionID"
+Write-Output "Alert Resource Group: $AlertRG"
+Write-Output "New Resource Group to Monitor: $rgtoAdd"
+Write-Output "Action Group Name: $actionGroupName"
+Write-Output "VM Location: $VMlocation"
 
 # Define alerts
 $MetricAlertV2 = @(
@@ -83,17 +92,14 @@ foreach ($ruleMatric in $MetricAlertV2) {
         # Create new alert
         Write-Output "Creating alert: $($ruleMatric.Name)"
         $criteria = New-AzMetricAlertRuleV2Criteria -MetricName $ruleMatric.MetricName -Operator $ruleMatric.Operator -Threshold $ruleMatric.Threshold -TimeAggregation $TimeAggregation -MetricNamespace $MetricNamespace 
-        Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -ActionGroupId  $ActionGroupId -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace  -Tag $CommonTags
+        Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId  # -Tags $CommonTags
     } else {
             # Update scope of the existing alert
             Write-Output "Updating scope for alert: $($ruleMatric.Name)"
-            $existingAlert.Scopes += $newResourceGroup
-            Set-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Scope $existingAlert.Scopes
-        # # Update existing alert
-        # Write-Output "Updating alert: $($ruleMatric.Name)"
-        # $currentScopes = $existingAlert.Scopes
-        # $newScopes = @($currentScopes + $newResourceGroup)
-        # $tags = $ruleMatric.tags | ConvertTo-Json
-        # Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $newScopes  -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -ActionGroupId  $ActionGroupId -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace  
+            
+            $currentScopes = $existingAlert.Scopes
+            $newScopes = @($currentScopes + $newResourceGroup)
+            Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity -Scope  $newScopes -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId 
+        
 }
 }
