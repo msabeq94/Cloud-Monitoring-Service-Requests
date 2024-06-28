@@ -1,3 +1,10 @@
+
+$accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
+
+$header = @{
+    "Authorization" = "Bearer $accessToken"
+    "Content-Type" = "application/json"
+}
 # Define common variables
 $subscriptionID = Read-Host "Enter the subscription ID"
 $AlertRG = Read-Host "Enter the Resource group of the alerts"
@@ -6,7 +13,7 @@ $actionGroupName = Read-Host "Enter the Action Grpup name"
 $VMlocation = Read-Host "enter the VMs location to monitor"
 
 
-$ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGroupName ).id
+$ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGroupName).id
 
 
 $newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rgtoAdd"
@@ -16,11 +23,14 @@ $TimeAggregation = 'Average'
 $MetricNamespace = "microsoft.compute/virtualmachines"
 
 
-# $CommonTags = @{
-#     "DeployedBy"="Vodafone" ;
-#     "VodafoneBuildVersion"="vf-build-v1";
-#     "VodafoneProduct"="Cloud Monitoring" 
-# } 
+#  $CommonTags = @{['DeployedBy', 'Vodafone']; ['VodafoneBuildVersion', 'vf-build-v1'];
+#     ['VodafoneProduct', 'Cloud Monitoring']} 
+
+# $Tags = @{
+#     "DeployedBy" = "Vodafone"
+#     "VodafoneBuildVersion" = "vf-build-v1"
+#     "VodafoneProduct" = "Cloud Monitoring"
+# } | ConvertTo-Json
 
 # Debug output to verify variables
 Write-Output "Subscription ID: $subscriptionID"
@@ -28,6 +38,7 @@ Write-Output "Alert Resource Group: $AlertRG"
 Write-Output "New Resource Group to Monitor: $rgtoAdd"
 Write-Output "Action Group Name: $actionGroupName"
 Write-Output "VM Location: $VMlocation"
+#############################################################################################################
 
 # Define alerts
 $MetricAlertV2 = @(
@@ -90,16 +101,30 @@ foreach ($ruleMatric in $MetricAlertV2) {
     
     if (-not $existingAlert) {
         # Create new alert
-        Write-Output "Creating alert: $($ruleMatric.Name)"
+       # Write-Output "Creating alert: $($ruleMatric.Name)"
         $criteria = New-AzMetricAlertRuleV2Criteria -MetricName $ruleMatric.MetricName -Operator $ruleMatric.Operator -Threshold $ruleMatric.Threshold -TimeAggregation $TimeAggregation -MetricNamespace $MetricNamespace 
-        Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId  # -Tags $CommonTags
+        $IdUri= (Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId).id #-Tags $CommonTags
+        $AlertUri = "https://management.azure.com$($IdUri)/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+          $body = @{
+            "properties" = @{
+                "tags" = @{
+                    "DeployedBy" = "Vodafone"
+                    "VodafoneBuildVersion" = "vf-build-v1"
+                    "VodafoneProduct" = "Cloud Monitoring"
+                }
+            }
+        }| ConvertTo-Json
+        Invoke-RestMethod -Method Put -Headers $header -Uri $AlertUri -Body $body
+         #| ConvertTo-Json
+
+
     } else {
             # Update scope of the existing alert
             Write-Output "Updating scope for alert: $($ruleMatric.Name)"
             
             $currentScopes = $existingAlert.Scopes
             $newScopes = @($currentScopes + $newResourceGroup)
-            Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity -Scope  $newScopes -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId 
+            Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Description $existingAlert.Description -Severity $existingAlert.Severity -Scope  $newScopes -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -TargetResourceRegion $existingAlert.TargetResourceRegion -TargetResourceType  $existingAlert.TargetResourceType -ActionGroupId $ActionGroupId -Criteria $existingAlert.Criteria 
         
 }
 }
