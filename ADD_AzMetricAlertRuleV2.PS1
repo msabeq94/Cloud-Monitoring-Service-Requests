@@ -23,14 +23,6 @@ $TimeAggregation = 'Average'
 $MetricNamespace = "microsoft.compute/virtualmachines"
 
 
-#  $CommonTags = @{['DeployedBy', 'Vodafone']; ['VodafoneBuildVersion', 'vf-build-v1'];
-#     ['VodafoneProduct', 'Cloud Monitoring']} 
-
-# $Tags = @{
-#     "DeployedBy" = "Vodafone"
-#     "VodafoneBuildVersion" = "vf-build-v1"
-#     "VodafoneProduct" = "Cloud Monitoring"
-# } | ConvertTo-Json
 
 # Debug output to verify variables
 Write-Output "Subscription ID: $subscriptionID"
@@ -103,7 +95,9 @@ foreach ($ruleMatric in $MetricAlertV2) {
         # Create new alert
        # Write-Output "Creating alert: $($ruleMatric.Name)"
         $criteria = New-AzMetricAlertRuleV2Criteria -MetricName $ruleMatric.MetricName -Operator $ruleMatric.Operator -Threshold $ruleMatric.Threshold -TimeAggregation $TimeAggregation -MetricNamespace $MetricNamespace 
+       
         $IdUri= (Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId).id #-Tags $CommonTags
+
         $AlertUri = "https://management.azure.com$($IdUri)/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
           $body = @{
             "properties" = @{
@@ -125,6 +119,19 @@ foreach ($ruleMatric in $MetricAlertV2) {
             $currentScopes = $existingAlert.Scopes
             $newScopes = @($currentScopes + $newResourceGroup)
             Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Description $existingAlert.Description -Severity $existingAlert.Severity -Scope  $newScopes -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -TargetResourceRegion $existingAlert.TargetResourceRegion -TargetResourceType  $existingAlert.TargetResourceType -ActionGroupId $ActionGroupId -Criteria $existingAlert.Criteria 
+            $IdUri= (Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId).id #-Tags $CommonTags
+
+        $AlertUri = "https://management.azure.com$($IdUri)/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+          $body = @{
+            "properties" = @{
+                "tags" = @{
+                    "DeployedBy" = "Vodafone"
+                    "VodafoneBuildVersion" = "vf-build-v1"
+                    "VodafoneProduct" = "Cloud Monitoring"
+                }
+            }
+        }| ConvertTo-Json
+        Invoke-RestMethod -Method Put -Headers $header -Uri $AlertUri -Body $body
         
 }
 }
