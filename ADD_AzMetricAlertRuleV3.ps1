@@ -53,9 +53,9 @@ if (-not $existingAlert) {
     }
 } else {
     $AllMatricURI = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-    $existingmetricalerts = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header 
+    $existingmetricalerts = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header
 
-    foreach ($existingmetricalert in $existingmetricalerts.value ) {
+    foreach ($existingmetricalert in $existingmetricalerts.value) {
         $MalertId = $($existingmetricalert).id
         $MalertName = $($existingmetricalert).name
         $oneuMatricuri = "https://management.azure.com$($MalertId)?api-version=2018-03-01"

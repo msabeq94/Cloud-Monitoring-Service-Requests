@@ -5,6 +5,16 @@ $header = @{
     "Content-Type" = "application/json"
 }
 
+# Define common variables
+$subscriptionID = Read-Host "Enter the subscription ID"
+$AlertRG = Read-Host "Enter the Resource group of the alerts"
+$rgtoAdd = Read-Host "Enter the new Resource group name to monitor"
+$actionGroupName = Read-Host "Enter the Action Grpup name"
+
+
+
+$ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGroupName).id
+
 $uri = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 
 $newScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoAdd)"
