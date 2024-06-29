@@ -42,6 +42,7 @@ $body = @"
     }
 }
 "@
-Invoke-RestMethod -Uri $updateUri -Method  put -Headers $header -Body $body
-Write-Output "$alertName updated"
+$update = Invoke-RestMethod -Uri $updateUri -Method  put -Headers $header -Body $body
+$newScopeout = $($update).properties.scopes | ConvertTo-Json
+Write-Output "$alertName new scope $newScopeout"
 }
