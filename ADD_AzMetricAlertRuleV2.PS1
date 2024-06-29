@@ -90,14 +90,15 @@ $MetricAlertV2 = @(
 foreach ($ruleMatric in $MetricAlertV2) {
     
     $existingAlert = Get-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG | Where-Object { $_.Name -eq $ruleMatric.Name }
+
+   
     
     if (-not $existingAlert) {
         # Create new alert
        # Write-Output "Creating alert: $($ruleMatric.Name)"
         $criteria = New-AzMetricAlertRuleV2Criteria -MetricName $ruleMatric.MetricName -Operator $ruleMatric.Operator -Threshold $ruleMatric.Threshold -TimeAggregation $TimeAggregation -MetricNamespace $MetricNamespace 
-       
-        $IdUri= (Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId).id #-Tags $CommonTags
-
+        $upaler = Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId #-Tags $CommonTags
+        $IdUri= $upaler.Id
         $AlertUri = "https://management.azure.com$($IdUri)/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
           $body = @{
             "properties" = @{
@@ -116,7 +117,7 @@ foreach ($ruleMatric in $MetricAlertV2) {
             # Update scope of the existing alert
             Write-Output "Updating scope for alert: $($ruleMatric.Name)"
             
-            $currentScopes = $existingAlert.Scopes
+           $currentScopes = $existingAlert.Scopes 
             $newScopes = @($currentScopes + $newResourceGroup)
             Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $existingAlert.Name -Description $existingAlert.Description -Severity $existingAlert.Severity -Scope  $newScopes -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize  -TargetResourceRegion $existingAlert.TargetResourceRegion -TargetResourceType  $existingAlert.TargetResourceType -ActionGroupId $ActionGroupId -Criteria $existingAlert.Criteria 
             $IdUri= (Add-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG -Name $ruleMatric.Name -Description $ruleMatric.Description -Severity $ruleMatric.Severity  -Scope $ruleMatric.Scope -EvaluationFrequency $EvaluationFrequency -WindowSize $WindowSize -Criteria $criteria -TargetResourceRegion $VMlocation -TargetResourceType  $MetricNamespace -ActionGroupId $ActionGroupId).id #-Tags $CommonTags

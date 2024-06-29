@@ -1,13 +1,10 @@
 param vmAlertProcessingRuleScope string = 'VF-CloudMonitoring'
 param vmlocations string = 'uksouth'
-param newActionGroupId string = '/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/actiongroups/ vf-core-cm-notifications'
+param newActionGroupId string = '/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/actiongroups/newag'
 param subscriptionId string = subscription().subscriptionId
 param customerRGScope string = '/subscriptions/${subscriptionId}/resourceGroups/${vmAlertProcessingRuleScope}'
 
- 
- 
-// monitoring alert rule for CPU Percentage Exceeded
-resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
+resource vf_core_cm_vm_cpu_percentage_vmlocations 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'vf-core-cm-vm-cpu-percentage-${vmlocations}'
   location: 'Global'
   tags: {
@@ -19,7 +16,9 @@ resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     description: 'CIS VM- CPU Percentage Exceeded The Threshold'
     severity: 2
     enabled: true
-    scopes: [customerRGScope]
+    scopes: [
+      customerRGScope
+    ]
     evaluationFrequency: 'PT5M'
     windowSize: 'PT15M'
     criteria: {
@@ -48,10 +47,8 @@ resource newcpuPercentageAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     ]
   }
 }
- 
-// monitoring alert rule for available memory bytes
- 
-resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
+
+resource vf_core_cm_vm_available_memory_vmlocations 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'vf-core-cm-vm-available-memory-${vmlocations}'
   location: 'Global'
   tags: {
@@ -63,7 +60,9 @@ resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     description: 'Alert when available memory bytes falls below threshold'
     severity: 3
     enabled: true
-    scopes: [customerRGScope]
+    scopes: [
+      customerRGScope
+    ]
     evaluationFrequency: 'PT5M'
     windowSize: 'PT15M'
     criteria: {
@@ -92,10 +91,8 @@ resource memoryBytesAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     ]
   }
 }
- 
-// monitoring alert rule for consumed IOPS percentage on the data disk
- 
-resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
+
+resource vf_core_cm_vm_data_disk_iops_consumed_percentage_vmlocations 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'vf-core-cm-vm-data-disk-iops-consumed-percentage-${vmlocations}'
   location: 'Global'
   tags: {
@@ -107,7 +104,9 @@ resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     description: 'Alert for Data Disk IOPS Consumed Percentage'
     severity: 2
     enabled: true
-    scopes: [customerRGScope]
+    scopes: [
+      customerRGScope
+    ]
     evaluationFrequency: 'PT5M'
     windowSize: 'PT15M'
     criteria: {
@@ -136,11 +135,8 @@ resource diskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     ]
   }
 }
- 
- 
-// monitoring alert rule for consumed IOPS percentage on the OS disk
- 
-resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
+
+resource vf_core_cm_VM_os_disk_iops_consumed_percentage_vmlocations 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'vf-core-cm-VM-os-disk-iops-consumed-percentage-${vmlocations}'
   location: 'Global'
   tags: {
@@ -152,7 +148,9 @@ resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     description: 'Alert for OS Disk IOPS Consumed Percentage'
     severity: 2
     enabled: true
-    scopes: [customerRGScope]
+    scopes: [
+      customerRGScope
+    ]
     evaluationFrequency: 'PT5M'
     windowSize: 'PT15M'
     criteria: {
@@ -181,11 +179,8 @@ resource osDiskIOPSAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     ]
   }
 }
- 
- 
-// monitoring alert rule for VM availability
- 
-resource vmAvailabilityAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
+
+resource vf_core_cm_vm_availability_vmlocations 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: 'vf-core-cm-vm-availability-${vmlocations}'
   location: 'Global'
   tags: {
@@ -197,7 +192,9 @@ resource vmAvailabilityAlert 'microsoft.insights/metricAlerts@2018-03-01' = {
     description: 'Alert for VM Availability'
     severity: 0
     enabled: true
-    scopes: [customerRGScope]
+    scopes: [
+      customerRGScope
+    ]
     evaluationFrequency: 'PT5M'
     windowSize: 'PT15M'
     criteria: {
