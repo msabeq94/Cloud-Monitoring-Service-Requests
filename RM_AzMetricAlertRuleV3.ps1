@@ -1,7 +1,12 @@
 $subscriptionID = Read-Host "Enter the subscription ID"
 $AlertRG = Read-Host "Enter the Resource group of the alerts"
 $VMlocation = Read-Host "enter the VMs location to monitor"
+$accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 
+$header = @{
+    "Authorization" = "Bearer $accessToken"
+    "Content-Type" = "application/json"
+}
 
 #$subscriptionID = Read-Host "Enter the subscription ID"
 $rgToRemove = Read-Host "Enter the Resource group name to remove from alerts"
@@ -30,6 +35,7 @@ foreach ($existingmetricalertslocation in $existingmetricalertslocations ) {
         if ($currentScopes.Count -eq 1) {
             # Remove the entire alert rule if it only contains the resource group to be removed
             Invoke-RestMethod -Uri $RoneuMatricuri -Method Delete -Headers $header 
+            Write-Output " Alert $RMalertName deleted "
         } else {
             # Remove the resource group from the scopes
             $newScop = $currentScopes  | Where-Object { $_ -ne $resourceGroupToRemove } | ConvertTo-Json
@@ -89,4 +95,4 @@ $Mscopes =  @"
 
 
 
-$existingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation" }
+#$existingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation" }

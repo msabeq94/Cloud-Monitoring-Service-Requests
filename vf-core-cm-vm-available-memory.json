@@ -1,0 +1,45 @@
+{
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$AlertRG/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-available-memory-$VMlocation",
+    "name": "vf-core-cm-vm-available-memory-$VMlocation",
+    "type": "Microsoft.Insights/metricAlerts",
+    "location": "Global",
+    "tags": {
+      "DeployedBy": "Vodafone",
+      "VodafoneBuildVersion": "vf-build-v1",
+      "VodafoneProduct": "Cloud Monitoring"
+    },
+    "properties": {
+      "description": "Alert when available memory bytes falls below threshold",
+      "severity": 3,
+      "enabled": true,
+      "scopes": [
+        "$newScope"
+      ],
+      "evaluationFrequency": "PT5M",
+      "windowSize": "PT15M",
+      "criteria": {
+        "allOf": [
+          {
+            "threshold": 1.0,
+            "name": "Available Memory Bytes",
+            "metricNamespace": "microsoft.compute/virtualmachines",
+            "metricName": "Available Memory Bytes",
+            "operator": "LessThan",
+            "timeAggregation": "Average",
+            "skipMetricValidation": false,
+            "criterionType": "StaticThresholdCriterion"
+          }
+        ],
+        "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+      },
+      "autoMitigate": true,
+      "targetResourceType": "microsoft.compute/virtualmachines",
+      "targetResourceRegion": "$VMlocation",
+      "actions": [
+        {
+          "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/$AlertRG/providers/microsoft.insights/actiongroups/$actionGroupName",
+          "webHookProperties": {}
+        }
+      ]
+    }
+  }
