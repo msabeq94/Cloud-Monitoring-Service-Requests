@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 
 $header = @{
@@ -14,6 +15,8 @@ $actionGroupName = Read-Host "Enter the Action Grpup name"
 
 
 
+=======
+>>>>>>> 227b5f78b0657c150dede8d0d4d6ca37c24fe57a
 $uri = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 
 $RMScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoRM)"
