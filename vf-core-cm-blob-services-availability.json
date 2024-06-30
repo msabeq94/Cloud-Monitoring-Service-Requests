@@ -1,6 +1,6 @@
 {
   "properties": {
-    "displayName": "vf-core-cm-blob-services-availability-$rgtoAdd",
+    "displayName": "vf-core-cm-blob-services-availability-$rgtoAdd ",
     "policyType": "Custom",
       "policyRule": {
         "if": {
@@ -47,7 +47,7 @@
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "/subscriptions/$subscriptionID/resourcegroups/$rgtoAdd"
+                          "/subscriptions/$subscriptionID/resourcegroups/$rgtoAdd "
                         ],
                         "targetResourceTypes": [
                           "Microsoft.Storage/storageAccounts"

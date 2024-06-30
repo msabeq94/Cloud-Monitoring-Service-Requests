@@ -17,10 +17,12 @@ $jsonFilePaths = @(
             -replace '\$newScope', $newResourceGroup `
             -replace '\$actionGroupName', $actionGroupName
 
-            
+
 $PolicyNames = @(
         "vf-core-cm-blob-services-availability-$($rgtoAdd)",
         "vf-core-cm-file-services-availability-$($rgtoAdd)",
         "vf-core-cm-storage-account-availability-$($rgtoAdd)"
     )
 
+
+    New-AzPolicyDefinition -Name

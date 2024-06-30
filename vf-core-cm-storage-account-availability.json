@@ -50,7 +50,7 @@
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "/subscriptions/$subscriptionID/resourcegroups/$rgtoAdd"
+                          "/subscriptions/$subscriptionID/resourcegroups/$rgtoAdd "
                         ],
                         "targetResourceTypes": [
                           "Microsoft.Storage/storageAccounts"

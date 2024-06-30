@@ -1,5 +1,5 @@
 
-$resourceGroupName = "VF-CloudMonitoringv3"
+$resourceGroupName = "VF-CloudMonitoring"
  $scope = "/subscriptions/c3323cc6-1939-4b36-8714-86504bbb8e4b/resourceGroups/$resourceGroupName"
 
 # Get all policy assignments for the specified resource group
