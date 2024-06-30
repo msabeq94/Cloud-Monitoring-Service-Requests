@@ -1,10 +1,12 @@
 # Define common variables
 $subscriptionID = "c3323cc6-1939-4b36-8714-86504bbb8e4b"
 $AlertRG = "vf-core-UK-resources-rg"
-$rgtoAdd = "VF-CloudMonitoringv3"
+$rgtoAdd = "VF-CloudMonitoringv2"
 $actionGroupName = "newag"
 $VMlocation = "ukwest"
-
+$Managed_Identity = "vf-core-cm-managed-identity-ap"
+$UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName $AlertRG -Name $Managed_Identity
+$newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rgtoAdd"
 $jsonFilePaths = @(
     "~/vf-core-cm-blob-services-availability.json",
     "~/vf-core-cm-file-services-availability.json",
@@ -19,7 +21,7 @@ $PolicyNames = @(
 
 foreach ($index in 0..($jsonFilePaths.Length - 1)) {
     $jsonFilePath = $jsonFilePaths[$index]
-    $policyName = $($PolicyNames[$index])
+    $policyName = $PolicyNames[$index]
 
     # Load the JSON content
     $jsonContent = Get-Content -Path $jsonFilePath -Raw
@@ -29,15 +31,18 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
         -replace '\$subscriptionID', $subscriptionID `
         -replace '\$AlertRG', $AlertRG `
         -replace '\$VMlocation', $VMlocation `
-        -replace '\$newScope', $rgtoAdd `
+        -replace '\$rgtoAdd', $rgtoAdd `
         -replace '\$actionGroupName', $actionGroupName
 
     # Convert the JSON content to a PowerShell object
-    $policyDefinition = $jsonContent #| ConvertFrom-Json
+    $policyDefinition = $jsonContent 
 
     # Create the policy definition in Azure
-    New-AzPolicyDefinition -Name $policyName  -DisplayName $policyName  -Policy $policyDefinition
-}
+    New-AzPolicyDefinition -Name $policyName -DisplayName $policyName -Policy $policyDefinition
+    Start-Sleep -Seconds 30
 
+    $PolicyDefinition = Get-AzPolicyDefinition -Name $policyName
+    New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroup -PolicyDefinition $PolicyDefinition -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id -Location $UserAssignedIdentity.Location
+}
 
 Write-Host "Policy definitions created successfully."
