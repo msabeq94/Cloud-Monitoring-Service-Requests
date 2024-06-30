@@ -8,7 +8,7 @@ $header = @{
 # Define common variables
 $subscriptionID = Read-Host "Enter the subscription ID"
 $AlertRG = Read-Host "Enter the Resource group of the alerts"
-$rgtoAdd = Read-Host "Enter the new Resource group name to monitor"
+$rgtoRM = Read-Host "Enter the new Resource group name to monitor"
 $actionGroupName = Read-Host "Enter the Action Grpup name"
 
 
@@ -17,9 +17,9 @@ $ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGr
 
 $uri = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 
-$newScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoAdd)"
+$RMScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoRM)"
 
-$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $uri #| ConvertTo-Json -Depth 20
+$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $uri #| ConvertTo-Json
 foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 
     $alertId = $ActivityLogAlerts.id
@@ -28,13 +28,24 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
     $eachLogAlert = Invoke-RestMethod -Method Get -Headers $header -Uri $updateUri
     # Get detailed properties of the current Activity Log Alert
     #$ActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $uri  | ConvertTo-Json
-    $updatedScopes = $eachLogAlert.properties.scopes + $newScope  | ConvertTo-Json
+    $updatedScopes = $($eachLogAlert).properties.scopes  | Where-Object { $_ -ne $RMScope } | ConvertTo-Json
     $existingcondition= $($eachLogAlert).properties.condition | ConvertTo-Json
     $existingcactions= $($eachLogAlert).properties.actions | ConvertTo-Json
     $existingdescription = $($eachLogAlert).properties.description | ConvertTo-Json
     $existintags = $($eachLogAlert).tags | ConvertTo-Json
     $existinname = $($eachLogAlert).name | ConvertTo-Json
     $existinid =$($eachLogAlert).id| ConvertTo-Json
+
+    if ($updatedScopes.Count -eq 1) {
+        $scopesBody = @"
+    [
+        "$updatedScopes"
+    ]
+    "@
+    } else {
+        $scopesBody = $updatedScopes
+    }
+    
 
 $body = @"
 {
@@ -44,15 +55,16 @@ $body = @"
     "location": "global",
     "tags": $existintags,
     "properties": {
-        "scopes": $updatedScopes,
+        "scopes" : $scopesBody,
         "condition": $existingcondition,
         "actions": $existingcactions,
         "enabled": true,
-        "description": $existingDescription
+        "description": $existingDescription,
+       
     }
 }
 "@
 $update = Invoke-RestMethod -Uri $updateUri -Method  put -Headers $header -Body $body
-$newScopeout = $($update).properties.scopes | ConvertTo-Json
-Write-Output "$alertName new scope $newScopeout"
-}
+$RMScopeout = $($update).properties.scopes | ConvertTo-Json
+Write-Output "$alertName new scope $RMScopeout"
+}}
