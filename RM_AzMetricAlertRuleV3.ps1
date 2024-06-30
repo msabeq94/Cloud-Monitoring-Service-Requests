@@ -1,6 +1,10 @@
-$subscriptionID = Read-Host "Enter the subscription ID"
-$AlertRG = Read-Host "Enter the Resource group of the alerts"
-$VMlocation = Read-Host "enter the VMs location to monitor"
+# Define common variables
+$subscriptionID = "c3323cc6-1939-4b36-8714-86504bbb8e4b" #Read-Host "Enter the subscription ID"
+$AlertRG = "vf-core-UK-resources-rg"#Read-Host  "Enter the Resource group of the alerts"
+$rgToRemove = "VF-CloudMonitoringv4" #Read-Host "Enter the Resource group name to remove from alerts"
+$actionGroupName ="newag" # Read-Host "Enter the Action Group name"
+$VMlocation = "uksouth"# Read-Host "Enter the VMs location to monitor"
+
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 
 $header = @{
@@ -9,7 +13,7 @@ $header = @{
 }
 
 #$subscriptionID = Read-Host "Enter the subscription ID"
-$rgToRemove = Read-Host "Enter the Resource group name to remove from alerts"
+
 #$alertRulesLocation = Read-Host "Enter the Resource group of the alerts"
 $resourceGroupToRemove = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgToRemove)"
 # Debug output to verify variables
@@ -18,7 +22,7 @@ Write-Output "Alert Resource Group: $AlertRG"
 Write-Output "Resource group name to remove: $rgToRemove"
 Write-Output "VM Location: $VMlocation"
 # Get all metric alert rules in the specified alert rules resource group that start with "vf-core-cm-"
-$alertRules = Get-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation" }
+#$alertRules = Get-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation" }
 
 $AllMatricURI = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
 $existingmetricalerts = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header 
@@ -62,8 +66,10 @@ $Mscopes =  @"
 ]
 "@
 
-        # Create the body with proper JSON formatting
-        $bodyMatricUP = @"
+
+
+# Create the body with proper JSON formatting
+$bodyMatricUP = @"
 {
     "location": $Mlocation,
     "properties": {

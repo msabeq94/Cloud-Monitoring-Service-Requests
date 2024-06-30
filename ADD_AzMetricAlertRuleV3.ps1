@@ -5,17 +5,22 @@ $header = @{
     "Content-Type" = "application/json"
 }
 # Define common variables
-$subscriptionID = Read-Host "Enter the subscription ID"
-$AlertRG = Read-Host "Enter the Resource group of the alerts"
-$rgtoAdd = Read-Host "Enter the new Resource group name to monitor"
-$actionGroupName = Read-Host "Enter the Action Group name"
-$VMlocation = Read-Host "Enter the VMs location to monitor"
+$subscriptionID = "c3323cc6-1939-4b36-8714-86504bbb8e4b" #Read-Host "Enter the subscription ID"
+$AlertRG = "vf-core-UK-resources-rg"#Read-Host  "Enter the Resource group of the alerts"
+$rgtoAdd = "VF-CloudMonitoringv4"# Read-Host "Enter the new Resource group name to monitor"
+$actionGroupName ="newag" # Read-Host "Enter the Action Group name"
+$VMlocation = "ukwest"# Read-Host "Enter the VMs location to monitor"
 
 
 
 $newResourceGroup = "/subscriptions/$subscriptionID/resourceGroups/$rgtoAdd"
+$AllMatricURI = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
+#$existingAlert = Get-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG | Where-Object { $_.Name -like "*-$VMlocation" }
+$MAexexistingAlert = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header 
+$existingAlert = $MAexexistingAlert.value | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation"}
 
-$existingAlert = Get-AzMetricAlertRuleV2 -ResourceGroupName $AlertRG | Where-Object { $_.Name -like "*-$VMlocation" }
+
+
 
 if (-not $existingAlert) {
     $jsonFilePaths = @(
@@ -53,9 +58,9 @@ if (-not $existingAlert) {
     }
 } else {
     $AllMatricURI = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-    $existingmetricalerts = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header
-
-    foreach ($existingmetricalert in $existingmetricalerts.value) {
+    $MAexistingmetricalerts = Invoke-RestMethod -Uri $AllMatricURI -Method get -Headers $header 
+    $existingmetricalerts = $MAexistingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$VMlocation"}
+    foreach ($existingmetricalert in $existingmetricalerts) {
         $MalertId = $($existingmetricalert).id
         $MalertName = $($existingmetricalert).name
         $oneuMatricuri = "https://management.azure.com$($MalertId)?api-version=2018-03-01"
