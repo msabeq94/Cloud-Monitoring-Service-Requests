@@ -1,0 +1,26 @@
+# Define common variables
+$subscriptionID = "c3323cc6-1939-4b36-8714-86504bbb8e4b" #Read-Host "Enter the subscription ID"
+$AlertRG = "vf-core-UK-resources-rg"#Read-Host  "Enter the Resource group of the alerts"
+$rgtoAdd = "VF-CloudMonitoringv4"# Read-Host "Enter the new Resource group name to monitor"
+$actionGroupName ="newag" # Read-Host "Enter the Action Group name"
+$VMlocation = "ukwest"# Read-Host "Enter the VMs location to monitor"
+
+$jsonFilePaths = @(
+    "~/vf-core-cm-blob-services-availability.json",
+    "~/vf-core-cm-file-services-availability.json",
+    "~/vf-core-cm-storage-account-availability.json"
+)
+
+-replace '\$subscriptionID', $subscriptionID `
+            -replace '\$AlertRG', $AlertRG `
+            -replace '\$VMlocation', $VMlocation `
+            -replace '\$newScope', $newResourceGroup `
+            -replace '\$actionGroupName', $actionGroupName
+
+            
+$PolicyNames = @(
+        "vf-core-cm-blob-services-availability-$($rgtoAdd)",
+        "vf-core-cm-file-services-availability-$($rgtoAdd)",
+        "vf-core-cm-storage-account-availability-$($rgtoAdd)"
+    )
+
