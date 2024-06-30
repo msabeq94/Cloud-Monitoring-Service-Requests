@@ -7,52 +7,50 @@ $header = @{
 
 # Define common variables
 $subscriptionID = Read-Host "Enter the subscription ID"
-$AlertRG = Read-Host "Enter the Resource group of the alerts"
-$rgtoAdd = Read-Host "Enter the new Resource group name to monitor"
+$alertResourceGroup = Read-Host "Enter the Resource group of the alerts"
+$newResourceGroupName = Read-Host "Enter the new Resource group name to monitor"
 #$actionGroupName = Read-Host "Enter the Action Grpup name"
 
 
 
-#$ActionGroupId = (get-azactiongroup -ResourceGroupName $AlertRG  -name $actionGroupName).id
 
-$uri = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($AlertRG)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 
-$newScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoAdd)"
+$URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 
-$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $uri #| ConvertTo-Json -Depth 20
+$newResourceGroupPath = "/subscriptions/$($subscriptionID)/resourceGroups/$($newResourceGroupName)"
+
+$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $URI_AzLogAlertRule 
 foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 
-    $alertId = $ActivityLogAlerts.id
-    $alertName = $ActivityLogAlerts.name
-    $updateUri = "https://management.azure.com$($alertId)?api-version=2017-04-01"
-    $eachLogAlert = Invoke-RestMethod -Method Get -Headers $header -Uri $updateUri
-    # Get detailed properties of the current Activity Log Alert
-    #$ActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $uri  | ConvertTo-Json
-    $updatedScopes = $eachLogAlert.properties.scopes + $newScope  | ConvertTo-Json
-    $existingcondition= $($eachLogAlert).properties.condition | ConvertTo-Json
-    $existingcactions= $($eachLogAlert).properties.actions | ConvertTo-Json
-    $existingdescription = $($eachLogAlert).properties.description | ConvertTo-Json
-    $existintags = $($eachLogAlert).tags | ConvertTo-Json
-    $existinname = $($eachLogAlert).name | ConvertTo-Json
-    $existinid =$($eachLogAlert).id| ConvertTo-Json
+    $AlertIdAzLogAlertRule = $ActivityLogAlerts.id
+    $AlertNameAzLogAlertRule = $ActivityLogAlerts.name
+    $updateUriAzLogAlertRule = "https://management.azure.com$($AlertIdAzLogAlertRule)?api-version=2017-04-01"
+    $AzLogAlertRuleeachLogAlert = Invoke-RestMethod -Method Get -Headers $header -Uri $updateUriAzLogAlertRule
+       $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupPath  | ConvertTo-Json
+    $AzLogAlertRuleexistingcondition= $($AzLogAlertRuleeachLogAlert).properties.condition | ConvertTo-Json
+    $AzLogAlertRuleexistingcactions= $($AzLogAlertRuleeachLogAlert).properties.actions | ConvertTo-Json
+    $AzLogAlertRuleexistingdescription = $($AzLogAlertRuleeachLogAlert).properties.description | ConvertTo-Json
+    $AzLogAlertRuleexistintags = $($AzLogAlertRuleeachLogAlert).tags | ConvertTo-Json
+    $AzLogAlertRuleexistinname = $($AzLogAlertRuleeachLogAlert).name | ConvertTo-Json
+    $AzLogAlertRuleexistinid =$($AzLogAlertRuleeachLogAlert).id| ConvertTo-Json
 
-$body = @"
+$BodyAzLogAlertRule = @"
 {
-    "id": $existinid,
-    "name": $existinname,
+    "id": $AzLogAlertRuleexistinid,
+    "name": $AzLogAlertRuleexistinname,
     "type": "Microsoft.Insights/ActivityLogAlerts",
     "location": "global",
-    "tags": $existintags,
+    "tags": $AzLogAlertRuleexistintags,
     "properties": {
-        "scopes": $updatedScopes,
-        "condition": $existingcondition,
-        "actions": $existingcactions,
+        "scopes": $updatedScopesAzLogAlertRule,
+        "condition": $AzLogAlertRuleexistingcondition,
+        "actions": $AzLogAlertRuleexistingcactions,
         "enabled": true,
-        "description": $existingDescription
+        "description": $AzLogAlertRuleexistingDescription
     }
 }
 "@
-$update = Invoke-RestMethod -Uri $updateUri -Method  put -Headers $header -Body $body
-$newScopeout = $($update).properties.scopes | ConvertTo-Json
-Write-Output "$alertName new scope $newScopeout"
+$update = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
+$newResourceGroupPathout = $($update).properties.scopes | ConvertTo-Json
+Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupPathout"
 }
