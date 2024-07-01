@@ -16,7 +16,7 @@ $newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResou
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
 ###############################################################################################
-#ADD_ Log _SearchAlertRule
+#ADD_ Log_SearchAlertRule-custom- -per policy -RG
 ###############################################################################################
 # Define the paths to the JSON files containing policy definitions
 $jsonFilePaths = @(
@@ -66,7 +66,7 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
 }
 
 ###############################################################################################
-#ADD_AzLogAlertRule
+#ADD_AzLogAlertRule 
 ###############################################################################################
 
 $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $URI_AzLogAlertRule 
@@ -106,7 +106,7 @@ Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupPathout"
 }
 
 ###############################################################################################
-#ADD_AzMetricAlertRule
+#ADD_AzMetricAlertRule-per VM location
 ###############################################################################################
 $AllMetricAlert = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
 $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
