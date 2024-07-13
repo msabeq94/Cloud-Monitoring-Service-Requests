@@ -1,5 +1,5 @@
 $subscriptionId = "c3323cc6-1939-4b36-8714-86504bbb8e4b"
-$resourceGroupToRemove = "VF-CloudMonitoringv4"
+$resourceGroupToRemove = "VF-CloudMonitoring"
 $resourceManagementScope = "/subscriptions/$($subscriptionId)/resourceGroups/$($resourceGroupToRemove)"
 
 $policyAssignmentsInScope = Get-AzPolicyAssignment  -scope $resourceManagementScope 
