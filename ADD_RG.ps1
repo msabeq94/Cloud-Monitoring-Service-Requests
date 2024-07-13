@@ -60,7 +60,7 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
     $policyDefinition = Get-AzPolicyDefinition -Name $policyName
     Write-Output "policy Definition $policyName created"
     # Assign the policy to the new resource group with the user-assigned identity
-    New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $policyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
+    $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $policyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
 
     # Output the assignment status
