@@ -1,5 +1,5 @@
 {
-    "id": "/subscriptions/$subscriptionID/resourcegroups/$AlertRG/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-cpu-percentage-$VMlocation",
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$alertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-cpu-percentage-$VMlocation",
     "name": "vf-core-cm-vm-cpu-percentage-$VMlocation",
     "type": "Microsoft.Insights/metricAlerts",
     "location": "Global",
@@ -37,7 +37,7 @@
       "targetResourceRegion": "$VMlocation",
       "actions": [
         {
-          "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/$AlertRG/providers/microsoft.insights/actiongroups/$actionGroupName",
+          "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/$alertResourceGroup/providers/microsoft.insights/actiongroups/$actionGroupName",
           "webHookProperties": {}
         }
       ]
