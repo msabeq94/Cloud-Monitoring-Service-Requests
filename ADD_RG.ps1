@@ -15,6 +15,7 @@ $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName $alertReso
 $newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
+$currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
 ###############################################################################################
@@ -60,9 +61,11 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
     Write-Output "policy Definition $policyName created"
     # Assign the policy to the new resource group with the user-assigned identity
     New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $policyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
+    Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -ResourceGroupName $newResourceGroupName
 
     # Output the assignment status
     Write-Output "Assigned policy $policyName to resource group $newResourceGroupName."
+    Write-Output "Remediation task started for policy $policyName."
 }
 
 ###############################################################################################
