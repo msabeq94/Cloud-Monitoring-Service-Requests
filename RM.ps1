@@ -33,3 +33,20 @@ foreach ($resourceGroup in $resourceGroups) {
         Remove-AzMetricAlertRuleV2 -Name $metricAlert.Name -ResourceGroupName $resourceGroup.ResourceGroupName
     }
 }
+
+# Get all policy assignments for the specified resource group
+$policyAssignments = Get-AzPolicyAssignment  -scope $newResourceGroupPath
+
+# Loop through each policy assignment and remove it
+foreach ($policyAssignment in $policyAssignments) {
+    Remove-AzPolicyAssignment -id $policyAssignment.id  -Force
+    Write-Output "Removed policy assignment: $($policyAssignment.Name)"
+}
+
+
+$policyDefinitions = get-AzPolicyDefinition | Where-Object { $_.Name -like "vf-core-cm-*-$resourceGroupName"}
+foreach ($policyDefinition in $policyDefinitions) {
+    Remove-AzPolicyDefinition -Name $policyDefinition.name -Force
+    Write-Output "Removed policy Definition: $($policyAssignment.Name)"
+}
+
