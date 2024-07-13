@@ -6,7 +6,7 @@ $header = @{
 }
 
 $subscriptionID = Read-Host "Enter the Subscription ID"
-$alertResourceGroup = Read-Host "Enter the Resource PCR Group name"
+$alertResourceGroup = Read-Host "Enter the Resource PCR Group name "
 $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
 $actionGroupName = Read-Host "Enter the Action Group name"
 $vmLocation = Read-Host "Enter the location of the VMs to monitor"
@@ -60,7 +60,7 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
     $policyDefinition = Get-AzPolicyDefinition -Name $policyName
     Write-Output "policy Definition $policyName created"
     # Assign the policy to the new resource group with the user-assigned identity
-    $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $policyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
+    New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $policyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
 
     # Output the assignment status
