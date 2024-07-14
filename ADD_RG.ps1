@@ -22,9 +22,9 @@ $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 # Define the paths to the JSON files containing policy definitions
 $jsonFilePathsPolicy = @(
-    "./vf-core-cm-blob-services-availability.json",
-    "./vf-core-cm-file-services-availability.json",
-    "./vf-core-cm-storage-account-availability.json"
+    "vf-core-cm-blob-services-availability.json",
+    "vf-core-cm-file-services-availability.json",
+    "vf-core-cm-storage-account-availability.json"
 )
 
 # Define the policy names corresponding to each JSON file
@@ -140,11 +140,11 @@ $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-
 
 if (-not $ExistingMetricAlert) {
     $jsonFilePathsMetricAlert = @(
-        "~/vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
-        "~/vf-core-cm-vm-availability.json",
-        "~/vf-core-cm-vm-available-memory.json",
-        "~/vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
-        "~/vf-core-cm-vm-cpu-percentage.json"
+        "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "vf-core-cm-vm-availability.json",
+        "vf-core-cm-vm-available-memory.json",
+        "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "vf-core-cm-vm-cpu-percentage.json"
     )
     
      $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts"
