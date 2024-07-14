@@ -22,9 +22,9 @@ $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 # Define the paths to the JSON files containing policy definitions
 $jsonFilePathsPolicy = @(
-    "~/vf-core-cm-blob-services-availability.json",
-    "~/vf-core-cm-file-services-availability.json",
-    "~/vf-core-cm-storage-account-availability.json"
+    "./vf-core-cm-blob-services-availability.json",
+    "./vf-core-cm-file-services-availability.json",
+    "./vf-core-cm-storage-account-availability.json"
 )
 
 # Define the policy names corresponding to each JSON file
