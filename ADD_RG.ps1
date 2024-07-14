@@ -5,6 +5,7 @@ $header = @{
     "Content-Type" = "application/json"
 }
 
+
 $subscriptionID = Read-Host "Enter the Subscription ID"
 $alertResourceGroup = Read-Host "Enter the Resource PCR Group name "
 $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
@@ -20,7 +21,7 @@ $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
 ###############################################################################################
 # Define the paths to the JSON files containing policy definitions
-$jsonFilePaths = @(
+$jsonFilePathsPolicy = @(
     "~/vf-core-cm-blob-services-availability.json",
     "~/vf-core-cm-file-services-availability.json",
     "~/vf-core-cm-storage-account-availability.json"
@@ -34,15 +35,15 @@ $policyNames = @(
 )
 
 # Loop through each JSON file and policy name
-foreach ($index in 0..($jsonFilePaths.Length - 1)) {
-    $jsonFilePath = $jsonFilePaths[$index]
+foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
+    $jsonFilePath = $jsonFilePathsPolicy[$index]
     $policyName = $policyNames[$index]
 
     # Load the JSON content from the file
-    $jsonContent = Get-Content -Path $jsonFilePath -Raw
+    $jsonContentPolicy = Get-Content -Path $jsonFilePath -Raw
 
     # Replace placeholders in the JSON content with actual values
-    $jsonContent = $jsonContent `
+    $jsonContentPolicy = $jsonContentPolicy `
         -replace '\$subscriptionID', $subscriptionID `
         -replace '\$AlertRG', $alertResourceGroup `
         -replace '\$VMlocation', $vmLocation `
@@ -50,9 +51,14 @@ foreach ($index in 0..($jsonFilePaths.Length - 1)) {
         -replace '\$actionGroupName', $actionGroupName
 
     # Convert the JSON content to a PowerShell object
-    $policyDefinition = $jsonContent 
+    $policyDefinition = $jsonContentPolicy 
     # Check if the policy definition already exists
-    $existingPolicyDefinition = Get-AzPolicyDefinition -Name $policyName -ErrorAction SilentlyContinue
+
+    try {
+        $existingPolicyDefinition = Get-AzPolicyDefinition -Name $policyName -ErrorAction Stop
+    } catch {
+        $existingPolicyDefinition = $null
+    }
     if ($null -ne $existingPolicyDefinition) {
         Write-Output "Policy Definition $policyName already exists."
     } else {
@@ -217,6 +223,6 @@ if (-not $ExistingMetricAlert) {
 
        $Matupdate = Invoke-RestMethod -Uri $OneUriMetricAlert -Method put -Headers $header -Body $BodyMetricAlertu
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-Write-Output "$MalertName new scope $MetricsnewScopeout"
+  Write-Output "$MalertName new scope $MetricsnewScopeout"
     }
 }}
