@@ -10,6 +10,7 @@ $subscriptionID = Read-Host "Enter the subscription ID"
 $AlertRG = Read-Host "Enter the PCR Resource group Name"
 $rgtoRM = Read-Host "Enter the  Resource group name to remove "
 $VMlocation = Read-Host "Enter the VMs location to monitor"
+$actionGroupName = Read-Host "Enter the Action Group name"
 Write-Output "Subscription ID: $subscriptionID"
 Write-Output "Resource group name to remove: $rgtoRM"
 Write-Output "Alert Resource Group: $AlertRG"
@@ -86,11 +87,17 @@ $body = @"
     }
 }
 "@
+if ($updatedScopes -eq $null) {
+    Write-Output "Alert cannot be removed as it only contains $rgtoRM in its scope."
+} else {
     $update = Invoke-RestMethod -Uri $updateUri -Method put -Headers $header -Body $body
     Start-Sleep -Milliseconds 750
     $getscop = Invoke-RestMethod -Uri $updateUri -Method Get -Headers $header
     $RMScopeout = $($getscop).properties.scopes | ConvertTo-Json
-    Write-Output "$alertName new scope $RMScopeout"
+    Write-Output "Activity log alert rule : $alertName new scope $RMScopeout"
+    
+}
+    
 }
 
 
@@ -159,11 +166,11 @@ $bodyMatricUP = @"
 
        $Matupdate = Invoke-RestMethod -Uri $RoneuMatricuri  -Method put -Headers $header -Body $bodyMatricUP
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-        Write-Output "$RMalertName new scope $MetricsnewScopeout"
+        Write-Output "Metric alert rule : $RMalertName new scope $MetricsnewScopeout"
     }
 
     } else {
-        Write-Output "$($existingmetricalertslocation.Name) does not include $rgtoRM 
+        Write-Output "Metric alert rule : $($existingmetricalertslocation.Name) does not include $rgtoRM 
         scope $MetricsnewScopeout"
     }
 
