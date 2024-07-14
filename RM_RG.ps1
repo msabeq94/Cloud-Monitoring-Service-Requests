@@ -7,7 +7,7 @@ $header = @{
 
 # Define common variables
 $subscriptionID = Read-Host "Enter the subscription ID"
-$AlertRG = Read-Host "Enter the Resource group of the alerts"
+$AlertRG = Read-Host "Enter the PCR Resource group Name"
 $rgtoRM = Read-Host "Enter the  Resource group name to remove "
 $VMlocation = Read-Host "Enter the VMs location to monitor"
 Write-Output "Subscription ID: $subscriptionID"
@@ -20,21 +20,33 @@ $RM_AzLogAlerRuleuri = "https://management.azure.com/subscriptions/$($subscripti
 
 $RMScope = "/subscriptions/$($subscriptionID)/resourceGroups/$($rgtoRM)"
 
-$policyAssignmentsInScope = Get-AzPolicyAssignment  -scope $rgtoRM  
-
-foreach ($policyAssignment in $policyAssignmentsInScope) {
-    Remove-AzPolicyAssignment -id $policyAssignment.id  -Force
-    Write-Output "Removed policy assignment: $($policyAssignment.Name)"
+try {
+    $policyAssignmentsInScope = Get-AzPolicyAssignment -Scope $RMScope
+} catch {
+    $policyAssignmentsInScope = $null
 }
 
-$policyDefinitionsInScope = get-AzPolicyDefinition | Where-Object { $_.Name -like "vf-core-cm-*-$rgtoRM"}
-foreach ($policyDefinition in $policyDefinitionsInScope) {
-    Remove-AzPolicyDefinition -Name $policyDefinition.name -Force
-    Write-Output "Removed policy Definition: $($policyDefinition.Name)"
+if ($policyAssignmentsInScope) {
+    foreach ($policyAssignment in $policyAssignmentsInScope) {
+        Remove-AzPolicyAssignment -Id $policyAssignment.Id -Force
+        Write-Output "Removed policy assignment: $($policyAssignment.Name)"
+    }
+} else {
+    Write-Output "No policy assignments found."
+}
+
+$policyDefinitionsInScope = Get-AzPolicyDefinition | Where-Object { $_.Name -like "vf-core-cm-*-$rgtoRM" }
+if ($policyDefinitionsInScope) {
+    foreach ($policyDefinition in $policyDefinitionsInScope) {
+        Remove-AzPolicyDefinition -Name $policyDefinition.Name -Force
+        Write-Output "Removed policy Definition: $($policyDefinition.Name)"
+    }
+} else {
+    Write-Output "No policies found with the specified name."
 }
 
 
-$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $RM_AzLogAlerRuleuri#| ConvertTo-Json -Depth 20
+$existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $RM_AzLogAlerRuleuri
 foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 
     $alertId = $ActivityLogAlerts.id
@@ -94,14 +106,14 @@ foreach ($existingmetricalertslocation in $existingmetricalertslocations ) {
     $RMalertName = $($existingmetricalertslocation).name
     $currentScopes = $existingmetricalertslocation.properties.Scopes
     $RoneuMatricuri = "https://management.azure.com$($RMalertId)?api-version=2018-03-01"
-    if ($currentScopes -contains $resourceGroupToRemove) {
+    if ($currentScopes -contains $RMScope) {
         if ($currentScopes.Count -eq 1) {
             # Remove the entire alert rule if it only contains the resource group to be removed
             Invoke-RestMethod -Uri $RoneuMatricuri -Method Delete -Headers $header 
             Write-Output " Alert $RMalertName deleted "
         } else {
             # Remove the resource group from the scopes
-            $newScop = $currentScopes  | Where-Object { $_ -ne $resourceGroupToRemove }  | Select-Object -Unique
+            $newScop = $currentScopes  | Where-Object { $_ -ne $RMScope }  | Select-Object -Unique
         $ReachMatric  = Invoke-RestMethod -Method Get -Headers $header -Uri $RoneuMatricuri
         $Mlocation = $($ReachMatric).location | ConvertTo-Json
         $Mcriteria = $($ReachMatric).properties.criteria | ConvertTo-Json
@@ -151,7 +163,8 @@ $bodyMatricUP = @"
     }
 
     } else {
-        Write-Output "Alert rule $($existingmetricalertslocation.Name) does not include Resource Group $($rgToRemove)"
+        Write-Output "$($existingmetricalertslocation.Name) does not include $rgtoRM 
+        scope $MetricsnewScopeout"
     }
 
  
