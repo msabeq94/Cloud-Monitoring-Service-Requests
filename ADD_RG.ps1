@@ -1,17 +1,46 @@
-$accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 
-$header = @{
-    "Authorization" = "Bearer $accessToken"
-    "Content-Type" = "application/json"
+$OpColist  =  @{
+    "1"  =  "UK"
+    "2"  =  "IT"
+    "3"  =  "IE"
+    "4"  =  "ES"
+    "5"  =  "PT"
+    }
+
+    # Sort the options by key before displaying
+$sortedOptions  =  $OpColist.GetEnumerator() | Sort-Object Name
+
+while ($true) {
+Write-Host "Please Choose the OpCo?"
+foreach ($entry in $sortedOptions) {
+Write-Host "$($entry.Key)) $($entry.Value)"
 }
 
+$choiceOpCO  =  Read-Host "Enter the number corresponding to your choice"
+if ($OpColist.ContainsKey($choiceOpCO)) {
+    $OpCo  =  $OpColist[$choiceOpCO]
+    
+    Write-Host "OpCO  =  $OpCo"
+    $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 
+    $header = @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type" = "application/json"
+    }
+    
+break
+} else {
+Write-Host "Error: Invalid choice. Please select a valid option."
+}
+}
+
+$alertResourceGroup =  "vf-core-$OpCo-resources-rg"
 $subscriptionID = Read-Host "Enter the Subscription ID"
-$alertResourceGroup = Read-Host "Enter the Resource PCR Group name "
 $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
 $actionGroupName = Read-Host "Enter the Action Group name"
 $vmLocation = Read-Host "Enter the location of the VMs to monitor"
 $managedIdentityName  = Read-Host "Enter the Managed Identity name"
+
 $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName $alertResourceGroup -Name $managedIdentityName
 $newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
