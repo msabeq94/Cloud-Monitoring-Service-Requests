@@ -247,7 +247,7 @@ if (-not $ExistingMetricAlert) {
             -replace '\$subscriptionID', $subscriptionID `
             -replace '\$PCRalertResourceGroup', $PCRalertResourceGroupv2 `
             -replace '\$VMlocation', $vmLocation `
-            -replace '\rgScope', $newResourceGroupId `
+            -replace '\$newResourceGroupName', $newResourceGroupName `
             -replace '\AactionGroupName', $actionGroupId 
 
         $uriMetric = " $uriBaseMetricAlert/$alertName$apiVersion"
