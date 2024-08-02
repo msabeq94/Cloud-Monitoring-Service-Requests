@@ -51,7 +51,7 @@ $vmLocation = Read-Host "Enter the location of the VMs to monitor"
 $managedIdentityName  = Read-Host "Enter the Managed Identity name"
 
 $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalertResourceGroup -Name $managedIdentityName
-#$newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
+#$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
@@ -150,7 +150,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     Write-Output "policy Definition $policyName created"
     }
     Start-Sleep -seconds 5
-    $existingpolicyAssignment = Get-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -ErrorAction SilentlyContinue
+    $existingpolicyAssignment = Get-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
     if ($null -ne $existingpolicyAssignment) {
         Write-Output "The policy $policyName is already assigned to the resource group $newResourceGroupName."
@@ -158,7 +158,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     # Assign the policy to the new resource group with the user-assigned identity
     $NewpolicyDefinition = Get-AzPolicyDefinition -Name $policyName
     Start-Sleep -seconds 5
-    $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupPath -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
+    $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
 
     # Output the assignment status
@@ -179,10 +179,10 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
     $updateUriAzLogAlertRule = "https://management.azure.com$($AlertIdAzLogAlertRule)?api-version=2017-04-01"
     $AzLogAlertRuleeachLogAlert = Invoke-RestMethod -Method Get -Headers $header -Uri $updateUriAzLogAlertRule
     
-    if ($AzLogAlertRuleeachLogAlert.properties.scopes -contains $newResourceGroupPath) {
+    if ($AzLogAlertRuleeachLogAlert.properties.scopes -contains $newResourceGroupId) {
         Write-Output "The resource group $newResourceGroupName is already in the scope of $AlertNameAzLogAlertRule"
     } else {
-    $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupPath  | ConvertTo-Json
+    $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupId  | ConvertTo-Json
     $AzLogAlertRuleexistingcondition= $($AzLogAlertRuleeachLogAlert).properties.condition | ConvertTo-Json
     $AzLogAlertRuleexistingcactions= $($AzLogAlertRuleeachLogAlert).properties.actions | ConvertTo-Json
     $AzLogAlertRuleexistingdescription = $($AzLogAlertRuleeachLogAlert).properties.description | ConvertTo-Json
@@ -207,8 +207,8 @@ $BodyAzLogAlertRule = @"
 }
 "@
 $update = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
-$newResourceGroupPathout = $($update).properties.scopes | ConvertTo-Json
-Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupPathout"
+$newResourceGroupIdout = $($update).properties.scopes | ConvertTo-Json
+Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
 }}
 
 ###############################################################################################
@@ -261,12 +261,12 @@ if (-not $ExistingMetricAlert) {
         $OneUriMetricAlert = "https://management.azure.com$($MalertId)?api-version=2018-03-01"
         $OneMetricAlertup = Invoke-RestMethod -Method Get -Headers $header -Uri $OneUriMetricAlert
 
-        if ($OneMetricAlertup.properties.scopes -contains $newResourceGroupPath) {
+        if ($OneMetricAlertup.properties.scopes -contains $newResourceGroupId) {
             Write-Output "The resource group $newResourceGroupName is already in the scope of $MalertName"
         } else {
         $Mlocation = $($OneMetricAlertup).location | ConvertTo-Json
         $Mcriteria = $($OneMetricAlertup).properties.criteria | ConvertTo-Json
-        $Mscopes = $($OneMetricAlertup).properties.scopes + $newResourceGroupPath | ConvertTo-Json
+        $Mscopes = $($OneMetricAlertup).properties.scopes + $newResourceGroupId | ConvertTo-Json
         $MevaluationFrequency = $($OneMetricAlertup).properties.evaluationFrequency | ConvertTo-Json
         $Mseverity = $($OneMetricAlertup).properties.severity | ConvertTo-Json
         $MwindowSize = $($OneMetricAlertup).properties.windowSize | ConvertTo-Json
