@@ -36,6 +36,7 @@ Write-Host "Error: Invalid choice. Please select a valid option."
 
  $PCRalertResourceGroup =  "vf-core-$OpCo-resources-rg"
 
+ $PCRalertResourceGroupv2 = $PCRalertResourceGroup
 
 $subscriptionID = Read-Host "Enter the Subscription ID"
 $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
@@ -244,7 +245,7 @@ if (-not $ExistingMetricAlert) {
         $jsonContent = Get-Content -Path $jsonFilePath -Raw
         $modifiedJsonContent = $jsonContent `
             -replace '\$subscriptionID', $subscriptionID `
-            -replace '\PCRalertResourceGroup', $PCRalertResourceGroup `
+            -replace '\PCRalertResourceGroup', $PCRalertResourceGroupv2 `
             -replace '\$vmLocation', $vmLocation `
             -replace '\rgScope', $newResourceGroupId `
             -replace '\AactionGroupName', $actionGroupId 
