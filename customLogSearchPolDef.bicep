@@ -79,7 +79,7 @@ resource polDefBlobServicesAvl 'Microsoft.Authorization/policyDefinitions@2020-0
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -173,7 +173,7 @@ resource polDefStorageAccAvl 'Microsoft.Authorization/policyDefinitions@2020-03-
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -268,7 +268,7 @@ resource polDefFileServicesAvl 'Microsoft.Authorization/policyDefinitions@2020-0
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -363,7 +363,7 @@ resource polDefSQLServerCPUPercent 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -457,7 +457,7 @@ resource polDefSQLServerMemoryPercent 'Microsoft.Authorization/policyDefinitions
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -553,7 +553,7 @@ resource polDefSQLServerDataUsedPercent 'Microsoft.Authorization/policyDefinitio
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -649,7 +649,7 @@ resource polDefSQLServerFailedConn 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -743,7 +743,7 @@ resource polDefSQLServerDTUPercent 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -838,7 +838,7 @@ resource polDefSQLServerLogIOPercent 'Microsoft.Authorization/policyDefinitions@
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -931,7 +931,7 @@ resource polDefSQLServerDataIOPercent 'Microsoft.Authorization/policyDefinitions
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1024,7 +1024,7 @@ resource polDefPostgreSQLCPUPercent 'Microsoft.Authorization/policyDefinitions@2
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1116,7 +1116,7 @@ resource polDefPostgreSQLMemoryPercent 'Microsoft.Authorization/policyDefinition
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1209,7 +1209,7 @@ resource polDefPostgreSQLStoragePercent 'Microsoft.Authorization/policyDefinitio
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1303,7 +1303,7 @@ resource polDefPostgreSQLActiveConnXceeded 'Microsoft.Authorization/policyDefini
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1397,7 +1397,7 @@ resource polDefPostgreSQLFailedConn 'Microsoft.Authorization/policyDefinitions@2
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1489,7 +1489,7 @@ resource polDefPostgreSQLRepLag 'Microsoft.Authorization/policyDefinitions@2020-
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1582,7 +1582,7 @@ resource polDefMySQLHostCPUPercent 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1675,7 +1675,7 @@ resource polDefMySQLHostMemoryPercent 'Microsoft.Authorization/policyDefinitions
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1767,7 +1767,7 @@ resource polDefMySQLHostStoragePercent 'Microsoft.Authorization/policyDefinition
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1861,7 +1861,7 @@ resource polDefMySQLActiveConnXceeded 'Microsoft.Authorization/policyDefinitions
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -1955,7 +1955,7 @@ resource polDefMySQLAbortedConn 'Microsoft.Authorization/policyDefinitions@2020-
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -2049,7 +2049,7 @@ resource polDefMySQLReplicaLag 'Microsoft.Authorization/policyDefinitions@2020-0
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -2143,7 +2143,7 @@ resource polDefAppGWUnhealthyCount 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }
@@ -2237,7 +2237,7 @@ resource polDefAppGWFailedRequests 'Microsoft.Authorization/policyDefinitions@20
                       }
                       actions: {
                         actionGroups: [
-                          'AactionGroupName'
+                          '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
                         ]
                       }
                     }

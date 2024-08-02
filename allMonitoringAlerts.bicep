@@ -3,7 +3,7 @@
 param allAlertaScope string = 'VF-01'
 //param resourceGroupname string
 //param subscriptionId string
-param newActionGroupId string = '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-monitoring-notifications'
+param newActionGroupId string = '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
 
 // param vmlocations array
 // param deploymentRG string 
@@ -12,7 +12,7 @@ param alertProcessingRuleScope string = '/subscriptions/${subscriptionId}/resour
 
 
 // resource newActionGroup 'Microsoft.Insights/actionGroups@2022-06-01' = {
-//   name: 'vf-core-cm-monitoring-notifications'
+//   name: 'vf-core-cm-notifications'
 //   location: 'Global'
 //   tags: {
 //     DeployedBy: 'Vodafone'
