@@ -43,14 +43,15 @@ $newResourceGroup = Get-AzResourceGroup -Name $newResourceGroupName
 $newResourceGroupId = $newResourceGroup.ResourceId
 $newResourceGrouplocation = $newResourceGroup.Location
 
-$actionGroupName = Read-Host "Enter the Action Group name"
-$actionGroup = Get-AzActionGroup -ResourceGroupName  $PCRalertResourceGroup -Name $actionGroupName
+
+$actionGroup = Get-AzActionGroup -ResourceGroupName  $PCRalertResourceGroup -Name 'vf-core-cm-notifications'
 $actionGroupId = $actionGroup.Id
 
-$vmLocation = Read-Host "Enter the location of the VMs to monitor"
-$managedIdentityName  = Read-Host "Enter the Managed Identity name"
 
-$userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalertResourceGroup -Name $managedIdentityName
+$vmLocation = Read-Host "Enter the location of the VMs to monitor"
+
+
+$userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalertResourceGroup -Name 'vf-core-cm-managed-identity-ap'
 #$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
@@ -143,13 +144,13 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     } else {
     # Create the policy definition in Azure
     New-AzPolicyDefinition -Name $policyName -DisplayName $policyName -Policy $policyDefinition
-    Start-Sleep -seconds 5
+    Start-Sleep -Milliseconds 5
 
     # Retrieve the created policy definition
     
     Write-Output "policy Definition $policyName created"
     }
-    Start-Sleep -seconds 5
+    Start-Sleep -Milliseconds 5
     $existingpolicyAssignment = Get-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
     if ($null -ne $existingpolicyAssignment) {
@@ -157,7 +158,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     } else {
     # Assign the policy to the new resource group with the user-assigned identity
     $NewpolicyDefinition = Get-AzPolicyDefinition -Name $policyName
-    Start-Sleep -seconds 5
+    Start-Sleep -MilliMilliseconds 5
     $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
 
@@ -275,7 +276,7 @@ if (-not $ExistingMetricAlert) {
         $Mtargetaction = @"
 [
     {
-        "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/ $PCRalertResourceGroup/providers/microsoft.insights/actiongroups/$actionGroupName",
+        "actionGroupId": "$actionGroupId",
         "webHookProperties": {}
     }
 ]
