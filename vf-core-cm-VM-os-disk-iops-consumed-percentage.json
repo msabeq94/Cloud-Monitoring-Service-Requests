@@ -13,7 +13,7 @@
         "severity": 2,
         "enabled": true,
         "scopes": [
-            "rgScope"
+            "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
         ],
         "evaluationFrequency": "PT5M",
         "windowSize": "PT15M",
