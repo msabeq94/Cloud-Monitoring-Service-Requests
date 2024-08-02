@@ -1,16 +1,21 @@
 {
-   
-  "properties": {
-    "displayName": "vf-core-cm-storage-account-availability-$rgtoAdd",
-    "policyType": "Custom",
-   
-    
+       
+    "name": "vf-cm-PSQL-flx-server-act-conn-xceed-customerRG",
+    "properties": {
+      "policyType": "Custom",
+      "mode": "Indexed",
+      "description": "This policy definition will deploy alert for number of Active Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
+      "displayName": "vf-cm-PSQL-flx-server-act-conn-xceed-customerRG",
+      "metadata": {
+        "category": "Monitoring"
+      },
+      "parameters": {},
       "policyRule": {
         "if": {
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.Storage/storageAccounts"
+              "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
             }
           ]
         },
@@ -18,17 +23,11 @@
           "effect": "deployIfNotExists",
           "details": {
             "type": "Microsoft.Insights/scheduledQueryRules",
-            "roleDefinitionIds": [
-              "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
-              "/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
-              "/providers/Microsoft.Authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293",
-              "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
-            ],
             "existenceCondition": {
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-storage-account-availability"
+                  "equals": "vf-core-cm-PostgreSQL-flx-server-act-conn-exceeded-customerRG"
                 }
               ]
             },
@@ -42,30 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-storage-account-availability",
-                      "location": "$VMlocation",
+                      "name": "vf-core-cm-PostgreSQL-flx-server-act-conn-exceeded-customerRG",
+                      "location": "Alocation",
                       "properties": {
-                        "displayName": "Storage Account Availability",
-                        "severity": 0,
+                        "displayName": "PostgreSQL Flexible Server Active Connection Exceeded-customerRG",
+                        "description": "Number of Active Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
+                        "severity": 2,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "/subscriptions/$subscriptionID/resourcegroups/$rgtoAdd "
+                          "rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.Storage/storageAccounts"
+                          "Microsoft.DBforPostgreSQL/flexibleServers"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.STORAGE\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('Availability')\n| summarize AVL_Storage_Max = max(Maximum), AVL_Storage_Min = min(Minimum), AVL_Storage_Avg = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORPOSTGRESQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('active_connections')\n| summarize Active_Connections_Max = max(Maximum), Active_Connections_Min = min(Minimum), Active_Connections_Avg = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "AVL_Storage_Avg",
+                              "metricMeasureColumn": "Active_Connections_Avg",
                               "resourceIdColumn": "_ResourceId",
-                              "operator": "LessThan",
-                              "threshold": 99,
+                              "operator": "GreaterThan",
+                              "threshold": 300,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,8 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "/subscriptions/$subscriptionID/resourceGroups/$AlertRG/providers/microsoft.insights/actiongroups/$actionGroupName"
-                            
+                            "AactionGroupName"
                           ]
                         }
                       }
@@ -88,6 +87,5 @@
           }
         }
       }
-    }}
-  
-  
+    }
+  }

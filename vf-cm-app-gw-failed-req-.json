@@ -1,19 +1,21 @@
 {
-    "name": "vf-cm-blob-services-avl-customerRG",
+       
+    "name": "vf-cm-app-gw-failed-req-customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for Storage Account Blob Service Availability has been below threshold value",
-      "displayName": "vf-cm-blob-services-avl-customerRG",
+      "description": "This policy definition will deploy alert for number of Failed Request for an Application Gateway has been crossed the threshold value",
+      "displayName": "vf-cm-app-gw-failed-req-customerRG",
       "metadata": {
         "category": "Monitoring"
       },
+      "parameters": {},
       "policyRule": {
         "if": {
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.Storage/storageAccounts"
+              "equals": "Microsoft.Network/applicaitonGateways"
             }
           ]
         },
@@ -25,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-blob-services-availability-customerRG"
+                  "equals": "vf-core-cm-app-gw-failed-req-customerRG"
                 }
               ]
             },
@@ -35,36 +37,35 @@
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
-                  "parameters": {},
                   "resources": [
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-blob-services-availability-customerRG",
+                      "name": "vf-core-cm-app-gw-failed-req-customerRG",
                       "location": "Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-blob-services-availability-customerRG",
-                        "description": "Storage Account Blob Service Availability has been below threshold value",
-                        "severity": 0,
+                        "displayName": "Application Gateway Failed Requests-customerRG",
+                        "description": "Number of Failed Request for an Application Gateway has been crossed the threshold value",
+                        "severity": 1,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
                           "rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.Storage/storageAccounts"
+                          "Microsoft.Network/applicaitonGateways"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.STORAGE\" // /DATABASES\n| where _ResourceId contains \"blobservices\"\n| where MetricName in ('Availability')\n| summarize AVL_blob_Max = max(Maximum), AVL_blob_Min = min(Minimum), AVL_blob_Avg = avg(Average) by Resource , MetricName, _ResourceId",
-                              "timeAggregation": "Average",
-                              "metricMeasureColumn": "AVL_blob_Avg",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.NETWORK\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('FailedRequests')\n| summarize Total = sum(Total) by Resource , MetricName, _ResourceId",
+                              "timeAggregation": "Total",
+                              "metricMeasureColumn": "Total",
                               "resourceIdColumn": "_ResourceId",
-                              "operator": "LessThan",
-                              "threshold": 20,
+                              "operator": "GreaterThan",
+                              "threshold": 5,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1

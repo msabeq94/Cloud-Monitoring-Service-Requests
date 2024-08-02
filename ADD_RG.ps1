@@ -35,14 +35,23 @@ Write-Host "Error: Invalid choice. Please select a valid option."
 }
 
 $alertResourceGroup =  "vf-core-$OpCo-resources-rg"
+
+
 $subscriptionID = Read-Host "Enter the Subscription ID"
 $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
+$newResourceGroup = Get-AzResourceGroup -Name $newResourceGroupName
+$newResourceGroupId = $newResourceGroup.ResourceId
+$newResourceGrouplocation = $newResourceGroup.Location
+
 $actionGroupName = Read-Host "Enter the Action Group name"
+$actionGroup = Get-AzActionGroup -ResourceGroupName $alertResourceGroup -Name $actionGroupName
+$actionGroupId = $actionGroup.Id
+
 $vmLocation = Read-Host "Enter the location of the VMs to monitor"
 $managedIdentityName  = Read-Host "Enter the Managed Identity name"
 
 $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName $alertResourceGroup -Name $managedIdentityName
-$newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
+#$newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
@@ -52,15 +61,57 @@ $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 # Define the paths to the JSON files containing policy definitions
 $jsonFilePathsPolicy = @(
     "vf-core-cm-blob-services-availability.json",
-    "vf-core-cm-file-services-availability.json",
-    "vf-core-cm-storage-account-availability.json"
+    "vf-cm-storage-account-avl.json",
+    "vf-cm-file-services-avl.json",
+    "vf-cm-SQL-server-cpu-per.json",
+    "vf-cm-SQL-server-memory-per.json",
+    "vf-cm-SQL-server-data-used-per.json",
+    "vf-cm-SQL-server-failed-conn.json",
+    "vf-cm-SQL-server-dtu-per.json",
+    "vf-cm-SQL-server-log-IO-per-conn.json",
+    "vf-cm-SQL-server-data-IO-per.json",
+    "vf-cm-PSQL-flx-server-cpu-per.json",
+    "vf-cm-PSQL-flx-server-memory-per.json",
+    "vf-cm-PSQL-flx-server-storage-per.json",
+    "vf-cm-PSQL-flx-server-act-conn-xceed.json",
+    "vf-cm-PSQL-flx-server-failed-conn.json",
+    "vf-cm-PSQL-flx-server-rep-lag.json",
+    "vf-cm-MySQL-flx-server-host-cpu-per.json",
+    "vf-cm-MySQL-flx-server-host-memory-per.json",
+    "vf-cm-MySQL-flx-server-storage-per.json",
+    "vf-cm-MySQL-flx-server-act-conn-xceed.json",
+    "vf-cm-MySQL-flx-server-aborted-conn.json",
+    "vf-cm-MySQL-flx-server-replica-lag.json",
+    "vf-cm-app-gw-unhealthyhost-count-lag.json",
+    "vf-cm-app-gw-failed-req-.json"
 )
 
 # Define the policy names corresponding to each JSON file
 $policyNames = @(
     "vf-core-cm-blob-services-availability-$newResourceGroupName",
-    "vf-core-cm-file-services-availability-$newResourceGroupName",
-    "vf-core-cm-storage-account-availability-$newResourceGroupName"
+    "vf-cm-storage-account-avl-$newResourceGroupName",
+    "vf-cm-file-services-avl-$newResourceGroupName",
+    "vf-cm-SQL-server-cpu-per-$newResourceGroupName",
+    "vf-cm-SQL-server-memory-per-$newResourceGroupName",
+    "vf-cm-SQL-server-data-used-per-$newResourceGroupName",
+    "vf-cm-SQL-server-failed-conn-$newResourceGroupName",
+    "vf-cm-SQL-server-dtu-per-$newResourceGroupName",
+    "vf-cm-SQL-server-log-IO-per-conn-$newResourceGroupName",
+    "vf-cm-SQL-server-data-IO-per-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-cpu-per-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-memory-per-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-storage-per-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-act-conn-xceed-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-failed-conn-$newResourceGroupName",
+    "vf-cm-PSQL-flx-server-rep-lag-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-host-cpu-per-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-host-memory-per-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-storage-per-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-act-conn-xceed-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-aborted-conn-$newResourceGroupName",
+    "vf-cm-MySQL-flx-server-replica-lag-$newResourceGroupName",
+    "vf-cm-app-gw-unhealthyhost-count-lag-$newResourceGroupName",
+    "vf-cm-app-gw-failed-req-$newResourceGroupName"
 )
 
 # Loop through each JSON file and policy name
@@ -73,11 +124,10 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
 
     # Replace placeholders in the JSON content with actual values
     $jsonContentPolicy = $jsonContentPolicy `
-        -replace '\$subscriptionID', $subscriptionID `
-        -replace '\$AlertRG', $alertResourceGroup `
-        -replace '\$VMlocation', $vmLocation `
-        -replace '\$rgtoAdd', $newResourceGroupName `
-        -replace '\$actionGroupName', $actionGroupName
+        -replace '\rgScope', $newResourceGroupId `
+        -replace '\Alocation', $newResourceGrouplocation  `
+        -replace '\customerRG', $newResourceGroupName `
+        -replace '\AactionGroupName', $actionGroupId 
 
     # Convert the JSON content to a PowerShell object
     $policyDefinition = $jsonContentPolicy 
