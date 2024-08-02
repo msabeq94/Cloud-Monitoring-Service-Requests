@@ -1,0 +1,45 @@
+{
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-availability-$VMlocation",
+    "name": "vf-core-cm-VM-os-disk-iops-consumed-percentage-$VMlocation",
+    "type": "Microsoft.Insights/metricAlerts",
+    "location": "Global",
+    "tags": {
+        "DeployedBy": "Vodafone",
+        "VodafoneBuildVersion": "vf-build-v1",
+        "VodafoneProduct": "Cloud Monitoring"
+    },
+    "properties": {
+        "description": "Alert for OS Disk IOPS Consumed Percentage",
+        "severity": 2,
+        "enabled": true,
+        "scopes": [
+            "rgScope"
+        ],
+        "evaluationFrequency": "PT5M",
+        "windowSize": "PT15M",
+        "criteria": {
+            "allOf": [
+                {
+                    "threshold": 95,
+                    "name": "OS Disk IOPS Consumed Percentage",
+                    "metricNamespace": "microsoft.compute/virtualmachines",
+                    "metricName": "OS Disk IOPS Consumed Percentage",
+                    "operator": "GreaterThan",
+                    "timeAggregation": "Average",
+                    "skipMetricValidation": false,
+                    "criterionType": "StaticThresholdCriterion"
+                }
+            ],
+            "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+        },
+        "autoMitigate": true,
+        "targetResourceType": "microsoft.compute/virtualmachines",
+        "targetResourceRegion": "$VMlocation",
+        "actions": [
+            {
+                "actionGroupId": "AactionGroupName",
+                "webHookProperties": {}
+            }
+        ]
+    }
+}
