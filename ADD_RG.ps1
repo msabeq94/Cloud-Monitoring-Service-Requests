@@ -47,6 +47,7 @@ $newResourceGrouplocation = $newResourceGroup.Location
 
 $actionGroup = Get-AzActionGroup -ResourceGroupName  $PCRalertResourceGroup -Name 'vf-core-cm-notifications'
 $actionGroupId = $actionGroup.Id
+$actionGroupName = $actionGroup.Name
 
 
 $vmLocation = Read-Host "Enter the location of the VMs to monitor"
@@ -248,7 +249,7 @@ if (-not $ExistingMetricAlert) {
             -replace '\$PCRalertResourceGroup', $PCRalertResourceGroupv2 `
             -replace '\$VMlocation', $vmLocation `
             -replace '\$newResourceGroupName', $newResourceGroupName `
-            -replace '\AactionGroupName', $actionGroupId 
+            -replace '\$actionGroupName', $actionGroupName 
 
         $uriMetric = " $uriBaseMetricAlert/$alertName$apiVersion"
         Invoke-RestMethod -Uri $uriMetric -Method Put -Headers $header -Body $modifiedJsonContent
