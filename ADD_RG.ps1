@@ -246,7 +246,7 @@ if (-not $ExistingMetricAlert) {
         $modifiedJsonContent = $jsonContent `
             -replace '\$subscriptionID', $subscriptionID `
             -replace '\PCRalertResourceGroup', $PCRalertResourceGroupv2 `
-            -replace '\$vmLocation', $vmLocation `
+            -replace '\$VMlocation', $vmLocation `
             -replace '\rgScope', $newResourceGroupId `
             -replace '\AactionGroupName', $actionGroupId 
 
