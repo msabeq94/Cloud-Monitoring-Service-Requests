@@ -34,7 +34,7 @@ Write-Host "Error: Invalid choice. Please select a valid option."
 }
 }
 
-$alertResourceGroup =  "vf-core-$OpCo-resources-rg"
+ $PCRalertResourceGroup =  "vf-core-$OpCo-resources-rg"
 
 
 $subscriptionID = Read-Host "Enter the Subscription ID"
@@ -44,16 +44,16 @@ $newResourceGroupId = $newResourceGroup.ResourceId
 $newResourceGrouplocation = $newResourceGroup.Location
 
 $actionGroupName = Read-Host "Enter the Action Group name"
-$actionGroup = Get-AzActionGroup -ResourceGroupName $alertResourceGroup -Name $actionGroupName
+$actionGroup = Get-AzActionGroup -ResourceGroupName  $PCRalertResourceGroup -Name $actionGroupName
 $actionGroupId = $actionGroup.Id
 
 $vmLocation = Read-Host "Enter the location of the VMs to monitor"
 $managedIdentityName  = Read-Host "Enter the Managed Identity name"
 
-$userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName $alertResourceGroup -Name $managedIdentityName
+$userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalertResourceGroup -Name $managedIdentityName
 #$newResourceGroupPath = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
-$URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
-$URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
+$URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
+$URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -226,7 +226,7 @@ if (-not $ExistingMetricAlert) {
         "vf-core-cm-vm-cpu-percentage.json"
     )
     
-     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($alertResourceGroup)/providers/Microsoft.Insights/metricalerts"
+     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
     $apiVersion = "?api-version=2018-03-01"
     $alertNames = @(
         "vf-core-cm-vm-data-disk-iops-consumed-percentage-$($vmLocation)",
@@ -243,16 +243,16 @@ if (-not $ExistingMetricAlert) {
         $jsonContent = Get-Content -Path $jsonFilePath -Raw
         $modifiedJsonContent = $jsonContent `
             -replace '\$subscriptionID', $subscriptionID `
-            -replace '\$alertResourceGroup', $alertResourceGroup `
+            -replace '\PCRalertResourceGroup',  $PCRalertResourceGroup `
             -replace '\$vmLocation', $vmLocation `
-            -replace '\$newScope', $newResourceGroupPath `
-            -replace '\$actionGroupName', $actionGroupName
+            -replace '\rgScope', $newResourceGroupId `
+            -replace '\AactionGroupName', $actionGroupId 
 
         $uriMetric = " $uriBaseMetricAlert/$alertName$apiVersion"
         Invoke-RestMethod -Uri $uriMetric -Method Put -Headers $header -Body $modifiedJsonContent
     }
 } else {
-    $URI_MetricAlert 
+     
     $MAexistingmetricalerts = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
     $ExistingMetricAlert = $MAexistingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
     foreach ($ExistingMetricAlertZ in $ExistingMetricAlert) {
@@ -275,7 +275,7 @@ if (-not $ExistingMetricAlert) {
         $Mtargetaction = @"
 [
     {
-        "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/$alertResourceGroup/providers/microsoft.insights/actiongroups/$actionGroupName",
+        "actionGroupId": "/subscriptions/$subscriptionID/resourceGroups/ $PCRalertResourceGroup/providers/microsoft.insights/actiongroups/$actionGroupName",
         "webHookProperties": {}
     }
 ]
