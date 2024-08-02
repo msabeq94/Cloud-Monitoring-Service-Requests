@@ -1,5 +1,5 @@
 {
-    "id": "/subscriptions/$subscriptionID/resourcegroups/PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-data-disk-iops-consumed-percentage-$VMlocation",
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-data-disk-iops-consumed-percentage-$VMlocation",
     "name": "vf-core-cm-vm-data-disk-iops-consumed-percentage-$VMlocation",
     "type": "Microsoft.Insights/metricAlerts",
     "location": "Global",

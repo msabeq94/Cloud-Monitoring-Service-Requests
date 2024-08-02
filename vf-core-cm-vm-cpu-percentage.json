@@ -1,5 +1,5 @@
 {
-    "id": "/subscriptions/$subscriptionID/resourcegroups/PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-cpu-percentage-$VMlocation",
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-cpu-percentage-$VMlocation",
     "name": "vf-core-cm-vm-cpu-percentage-$VMlocation",
     "type": "Microsoft.Insights/metricAlerts",
     "location": "Global",

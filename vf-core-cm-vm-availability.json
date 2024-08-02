@@ -1,5 +1,5 @@
 {
-    "id": "/subscriptions/$subscriptionID/resourcegroups/PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-availability-$VMlocation",
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-availability-$VMlocation",
     "name": "vf-core-cm-vm-availability-$VMlocation",
     "type": "Microsoft.Insights/metricAlerts",
     "location": "Global",

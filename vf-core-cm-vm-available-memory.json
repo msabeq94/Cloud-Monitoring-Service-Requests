@@ -1,5 +1,5 @@
 {
-    "id": "/subscriptions/$subscriptionID/resourcegroups/PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-available-memory-$VMlocation",
+    "id": "/subscriptions/$subscriptionID/resourcegroups/$PCRalertResourceGroup/providers/Microsoft.Insights/metricAlerts/vf-core-cm-vm-available-memory-$VMlocation",
     "name": "vf-core-cm-vm-available-memory-$VMlocation",
     "type": "Microsoft.Insights/metricAlerts",
     "location": "Global",

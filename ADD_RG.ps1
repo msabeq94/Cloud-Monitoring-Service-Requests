@@ -244,7 +244,7 @@ if (-not $ExistingMetricAlert) {
         $jsonContent = Get-Content -Path $jsonFilePath -Raw
         $modifiedJsonContent = $jsonContent `
             -replace '\$subscriptionID', $subscriptionID `
-            -replace '\PCRalertResourceGroup',  $PCRalertResourceGroup `
+            -replace '\PCRalertResourceGroup', $PCRalertResourceGroup `
             -replace '\$vmLocation', $vmLocation `
             -replace '\rgScope', $newResourceGroupId `
             -replace '\AactionGroupName', $actionGroupId 
