@@ -228,7 +228,7 @@ if (-not $ExistingMetricAlert) {
         "vf-core-cm-vm-cpu-percentage.json"
     )
     
-     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$( $PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
+     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
     $apiVersion = "?api-version=2018-03-01"
     $alertNames = @(
         "vf-core-cm-vm-data-disk-iops-consumed-percentage-$($vmLocation)",
