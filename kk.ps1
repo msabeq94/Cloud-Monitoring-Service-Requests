@@ -75,5 +75,7 @@ foreach ($rgName in $resourceGroupNames) {
 $policyDefinitions = get-AzPolicyDefinition | Where-Object { $_.Name -like "vf-cm-*-VF-0*"}
 foreach ($policyDefinition in $policyDefinitions) {
     Remove-AzPolicyDefinition -Name $policyDefinition.name -Force
+ 
+ 
     Write-Output "Removed policy Definition: $($policyDefinition.Name)"
 }
