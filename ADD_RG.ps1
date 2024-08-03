@@ -160,7 +160,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     } else {
     # Assign the policy to the new resource group with the user-assigned identity
     $NewpolicyDefinition = Get-AzPolicyDefinition -Name $policyName
-    Start-Sleep -MilliMilliseconds 5
+    Start-Sleep -Milliseconds 5
     $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
 
