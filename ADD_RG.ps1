@@ -326,7 +326,7 @@ $Hheader = @{
     "Content-Type" = "application/json"
 }
 
-$HRGhealthURI ="https://management.azure.com/subscriptions/f5980816-b478-413b-ae0b-5fb6d820a88f/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$HRGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
 $HRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $Hheader 
 $HRGScope = $HRGAlert.properties.condition.allOf.anyof | Where-Object { $H_.field -eq "resourceGroup" } 
