@@ -275,24 +275,20 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 #  RG-Health-Alert
 ###############################################################################################
 
-$HaccessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
-$Hheader = @{
-    "Authorization" = "Bearer $HaccessToken"
-    "Content-Type" = "application/json"
-}
+
 
 $HRGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
-$HRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $Hheader 
-$HRGScope = $HRGAlert.properties.condition.allOf.anyof | Where-Object { $H_.field -eq "resourceGroup" } 
+$HRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $header 
+$HRGScope = $HRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
 
 $hnewResourceGroup = @{
     "field" = "resourceGroup"
     "equals" = "$($newResourceGroup)"
   } 
       $HresourceGroupExists = $HRGScope | Where-Object { $_.equals -eq "$($newResourceGroup)" }
-      if ($Hnull -eq $HresourceGroupExists) {
-        $HNEWRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $Hheader 
+      if ($null -eq $HresourceGroupExists) {
+        $HNEWRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $header 
         $HNEWRGScope = $HNEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
         $HequalsValueRG = $HNEWRGScope.equals
         $HNEWRTyScope = $HNEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } 
@@ -455,7 +451,7 @@ if ($HNEWRGScope.count -eq 1 -and $HNEWRTyScope.count -gt 1) {
 "@
 
       
-      $HRGAlertPUT= Invoke-RestMethod -Uri $HRGhealthURI -Method put   -Headers $Hheader  -Body $HBodyAzLogAlertRule
+      $HRGAlertPUT= Invoke-RestMethod -Uri $HRGhealthURI -Method put   -Headers $header  -Body $HBodyAzLogAlertRule
       $HRGScopeUPdate = $HRGAlertPUT.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
       write-output $HRGScopeUPdate
       start-sleep -s 5
