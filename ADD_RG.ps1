@@ -323,9 +323,9 @@ if (-not $ExistingMetricAlert) {
 $RGHAlert= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGHScope = $RGHAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
 
-$resourceGroups = Get-AzResourceGroup | Where-Object { $_.Tags -and $_.Tags[$tagKey] -eq $tagValue }
 
-foreach ($resourceGroup in $resourceGroups) {
+
+
   $newResourceGroup = @{
     "field" = "resourceGroup"
     "equals" = "$($newResourceGroupName)"
@@ -502,7 +502,7 @@ if ($NEWRGHScope.count -eq 1 -and $NEWRTyHScope.count -gt 1) {
       }else {
         Write-Output "Resource Group neme $($newResourceGroupName) does exist in the alert scope "
     } 
-  } 
+  
    
       
         
