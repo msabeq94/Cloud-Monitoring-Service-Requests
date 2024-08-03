@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-storage-account-avl-customerRG",
+    "name": "vf-cm-MySQL-flx-server-host-cpu-per-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for Storage Account Availability has been below threshold value",
-      "displayName": "vf-cm-storage-account-avl-customerRG",
+      "description": "This policy definition will deploy alert for CPU percentage for a Azure MySQL Flexible Server Database has been crossed the threshold value",
+      "displayName": "vf-cm-MySQL-flx-server-host-cpu-per-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -15,7 +15,7 @@
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.Storage/storageAccounts"
+              "equals": "Microsoft.DBforMySQL/flexibleServers"
             }
           ]
         },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-storage-account-availability-customerRG"
+                  "equals": "vf-core-cm-MySQL-flx-server-host-cpu-per-$customerRG"
                 }
               ]
             },
@@ -41,31 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-storage-account-availability-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-MySQL-flx-server-host-cpu-per-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-storage-account-availability-customerRG",
-                        "description": "Storage Account Availability has been below threshold value",
+                        "displayName": "MySQL Flexible Server Host CPU Percent-$customerRG",
+                        "description": "CPU percentage for a Azure MySQL Flexible Server Database has been crossed the threshold value",
                         "severity": 0,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.Storage/storageAccounts"
+                          "Microsoft.DBforMySQL/flexibleServers"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.STORAGE\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('Availability')\n| summarize AVL_Storage_Max = max(Maximum), AVL_Storage_Min = min(Minimum), AVL_Storage_Avg = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORMYSQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('cpu_percent')\n| summarize CPU_Maximum = max(Maximum), CPU_Minimum = min(Minimum), CPU_Average = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "AVL_Storage_Avg",
+                              "metricMeasureColumn": "CPU_Average",
                               "resourceIdColumn": "_ResourceId",
-                              "operator": "LessThan",
-                              "threshold": 20,
+                              "operator": "GreaterThan",
+                              "threshold": 90,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

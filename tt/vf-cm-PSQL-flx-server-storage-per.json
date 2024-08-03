@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-app-gw-unhealthyhost-count-lag-customerRG",
+    "name": "vf-cm-PSQL-flx-server-storage-per-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for unhealthy host for an Application Gateway has been crossed the threshold value",
-      "displayName": "vf-cm-app-gw-unhealthyhost-count-lag-customerRG",
+      "description": "This policy definition will deploy alert for the Storage percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
+      "displayName": "vf-cm-PSQL-flx-server-storage-per-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -15,7 +15,7 @@
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.Network/applicaitonGateways"
+              "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
             }
           ]
         },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-app-gw-unhealthyhost-count-customerRG"
+                  "equals": "vf-core-cm-PostgreSQL-flx-server-storage-per-$customerRG"
                 }
               ]
             },
@@ -41,31 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-app-gw-unhealthyhost-count-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-PostgreSQL-flx-server-storage-per-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "Application Gateway Unhealthy Host Count-customerRG",
-                        "description": "Unhealthy host for an Application Gateway has been crossed the threshold value",
-                        "severity": 1,
+                        "displayName": "vf-core-cm-PostgreSQL-flx-server-storage-per-$customerRG",
+                        "description": "The Storage percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
+                        "severity": 0,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.Network/applicaitonGateways"
+                          "Microsoft.DBforPostgreSQL/flexibleServers"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.NETWORK\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('UnhealthyHostCount')\n| summarize Total = sum(Total) by Resource , MetricName, _ResourceId",
-                              "timeAggregation": "Total",
-                              "metricMeasureColumn": "Total",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORPOSTGRESQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('storage_percent')\n| summarize STORAGE_Maximum = max(Maximum), STORAGE_Minimum = min(Minimum), STORAGE_Average = avg(Average) by Resource , MetricName, _ResourceId",
+                              "timeAggregation": "Average",
+                              "metricMeasureColumn": "STORAGE_Average",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
-                              "threshold": 5,
+                              "threshold": 90,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

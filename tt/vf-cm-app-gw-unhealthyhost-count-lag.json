@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-SQL-server-dtu-per-customerRG",
+    "name": "vf-cm-app-gw-unhealthyhost-count-lag-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for the DTU Percent Azure SQL Database has been crossed the threshold value",
-      "displayName": "vf-cm-SQL-server-dtu-per-customerRG",
+      "description": "This policy definition will deploy alert for unhealthy host for an Application Gateway has been crossed the threshold value",
+      "displayName": "vf-cm-app-gw-unhealthyhost-count-lag-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -15,7 +15,7 @@
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.Sql/servers"
+              "equals": "Microsoft.Network/applicaitonGateways"
             }
           ]
         },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-SQL-server-dtu-per-customerRG"
+                  "equals": "vf-core-cm-app-gw-unhealthyhost-count-$customerRG"
                 }
               ]
             },
@@ -41,31 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-SQL-server-dtu-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-app-gw-unhealthyhost-count-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-SQL-server-dtu-per-customerRG",
-                        "description": "The DTU Percent Azure SQL Database has been crossed the threshold value",
-                        "severity": 0,
+                        "displayName": "Application Gateway Unhealthy Host Count-$customerRG",
+                        "description": "Unhealthy host for an Application Gateway has been crossed the threshold value",
+                        "severity": 1,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.Sql/servers"
+                          "Microsoft.Network/applicaitonGateways"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.SQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('dtu_consumption_percent')\n| summarize DTU_Maximum = max(Maximum), DTU_Minimum = min(Minimum), DTU_Average = avg(Average) by Resource , MetricName, _ResourceId",
-                              "timeAggregation": "Average",
-                              "metricMeasureColumn": "DTU_Average",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.NETWORK\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('UnhealthyHostCount')\n| summarize Total = sum(Total) by Resource , MetricName, _ResourceId",
+                              "timeAggregation": "Total",
+                              "metricMeasureColumn": "Total",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
-                              "threshold": 90,
+                              "threshold": 5,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

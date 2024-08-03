@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-file-services-avl-customerRG",
+    "name": "vf-cm-file-services-avl-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
       "description": "This policy definition will deploy alert for Storage Account File Services Availability has been below threshold value",
-      "displayName": "vf-cm-file-services-avl-customerRG",
+      "displayName": "vf-cm-file-services-avl-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-file-services-availability-customerRG"
+                  "equals": "vf-core-cm-file-services-availability-$customerRG"
                 }
               ]
             },
@@ -41,16 +41,16 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-file-services-availability-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-file-services-availability-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-file-services-availability-customerRG",
+                        "displayName": "vf-core-cm-file-services-availability-$customerRG",
                         "description": "Storage Account File Services Availability has been below threshold value",
                         "severity": 0,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
                           "Microsoft.Storage/storageAccounts"
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

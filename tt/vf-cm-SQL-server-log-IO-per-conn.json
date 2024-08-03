@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-SQL-server-cpu-per-customerRG",
+    "name": "vf-cm-SQL-server-log-IO-per-conn-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for The CPU percent for a Azure SQL Database has been crossed the threshold value",
-      "displayName": "vf-cm-SQL-server-cpu-per-customerRG",
+      "description": "This policy definition will deploy alert for the SQL Server Log IO for a Azure SQL Database has been crossed the threshold value",
+      "displayName": "vf-cm-SQL-server-log-IO-per-conn-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-SQL-server-cpu-per-customerRG"
+                  "equals": "vf-core-cm-SQL-server-log-IO-per-conn-$customerRG"
                 }
               ]
             },
@@ -41,16 +41,16 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-SQL-server-cpu-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-SQL-server-log-IO-per-conn-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-SQL-server-cpu-per-customerRG",
-                        "description": "The CPU percent for a Azure SQL Database has been crossed the threshold value",
+                        "displayName": "vf-core-cm-SQL-server-log-IO-per-conn-$customerRG",
+                        "description": "The SQL Server Log IO for a Azure SQL Database has been crossed the threshold value",
                         "severity": 0,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
                           "Microsoft.Sql/servers"
@@ -60,9 +60,9 @@
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.SQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('cpu_percent')\n| summarize CPU_Maximum = max(Maximum), CPU_Minimum = min(Minimum), CPU_Average = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.SQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('log_write_percent')\n| summarize LOG_IO_Maximum = max(Maximum), LOG_IO_Minimum = min(Minimum), LOG_IO_Average = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "CPU_Average",
+                              "metricMeasureColumn": "LOG_IO_Average",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
                               "threshold": 90,
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

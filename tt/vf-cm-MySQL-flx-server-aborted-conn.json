@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-PSQL-flx-server-storage-per-customerRG",
+    "name": "vf-cm-MySQL-flx-server-aborted-conn-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for the Storage percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
-      "displayName": "vf-cm-PSQL-flx-server-storage-per-customerRG",
+      "description": "This policy definition will deploy alert for number of Aborted Connection for a Azure MySQL Flexible Server Database has been crossed the threshold value",
+      "displayName": "vf-cm-MySQL-flx-server-aborted-conn-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -15,7 +15,7 @@
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
+              "equals": "Microsoft.DBforMySQL/flexibleServers"
             }
           ]
         },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-PostgreSQL-flx-server-storage-per-customerRG"
+                  "equals": "vf-core-cm-MySQL-flx-server-aborted-conn-$customerRG"
                 }
               ]
             },
@@ -41,31 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-PostgreSQL-flx-server-storage-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-MySQL-flx-server-aborted-conn-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-PostgreSQL-flx-server-storage-per-customerRG",
-                        "description": "The Storage percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
-                        "severity": 0,
+                        "displayName": "MySQL Flexible Server Aborted Connections-$customerRG",
+                        "description": "Number of Aborted Connection for a Azure MySQL Flexible Server Database has been crossed the threshold value",
+                        "severity": 1,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.DBforPostgreSQL/flexibleServers"
+                          "Microsoft.DBforMySQL/flexibleServers"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORPOSTGRESQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('storage_percent')\n| summarize STORAGE_Maximum = max(Maximum), STORAGE_Minimum = min(Minimum), STORAGE_Average = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORMYSQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('aborted_connections')\n| summarize Aborted_Connections_Max = max(Maximum), Aborted_Connections_Min = min(Minimum), Aborted_Connections_Avg = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "STORAGE_Average",
+                              "metricMeasureColumn": "Aborted_Connections_Avg",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
-                              "threshold": 90,
+                              "threshold": 1,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

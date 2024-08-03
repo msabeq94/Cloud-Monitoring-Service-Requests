@@ -1,6 +1,6 @@
 param vmAlertProcessingRuleScope string = 'VF-01'
 param vmlocations string = 'uksouth'
-param newActionGroupId string = '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-monitoring-notifications'
+param newActionGroupId string = '/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications'
 param subscriptionId string = subscription().subscriptionId
 param customerRGScope string = '/subscriptions/${subscriptionId}/resourceGroups/${vmAlertProcessingRuleScope}'
 

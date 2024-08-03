@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-MySQL-flx-server-host-cpu-per-customerRG",
+    "name": "vf-cm-MySQL-flx-server-replica-lag-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for CPU percentage for a Azure MySQL Flexible Server Database has been crossed the threshold value",
-      "displayName": "vf-cm-MySQL-flx-server-host-cpu-per-customerRG",
+      "description": "This policy definition will deploy alert for the Replica lag for a Azure MySQL Flexible Server Database has been crossed the threshold value",
+      "displayName": "vf-cm-MySQL-flx-server-replica-lag-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-MySQL-flx-server-host-cpu-per-customerRG"
+                  "equals": "vf-core-cm-MySQL-flx-server-replica-lag-$customerRG"
                 }
               ]
             },
@@ -41,16 +41,16 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-MySQL-flx-server-host-cpu-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-MySQL-flx-server-replica-lag-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "MySQL Flexible Server Host CPU Percent-customerRG",
-                        "description": "CPU percentage for a Azure MySQL Flexible Server Database has been crossed the threshold value",
-                        "severity": 0,
+                        "displayName": "MySQL Flexible Server Replication Lag-$customerRG",
+                        "description": "The Replica lag for a Azure MySQL Flexible Server Database has been crossed the threshold value",
+                        "severity": 2,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
                           "Microsoft.DBforMySQL/flexibleServers"
@@ -60,12 +60,12 @@
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORMYSQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('cpu_percent')\n| summarize CPU_Maximum = max(Maximum), CPU_Minimum = min(Minimum), CPU_Average = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORMYSQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('replication_lag')\n| summarize Replica_Lag_Max = max(Maximum), Replica_Lag_Min = min(Minimum), Replica_Lag_Avg = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "CPU_Average",
+                              "metricMeasureColumn": "Replica_Lag_Avg",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
-                              "threshold": 90,
+                              "threshold": 10,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

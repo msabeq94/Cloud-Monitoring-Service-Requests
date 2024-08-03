@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-PSQL-flx-server-memory-per-customerRG",
+    "name": "vf-cm-app-gw-failed-req-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for the Memory percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
-      "displayName": "vf-cm-PSQL-flx-server-memory-per-customerRG",
+      "description": "This policy definition will deploy alert for number of Failed Request for an Application Gateway has been crossed the threshold value",
+      "displayName": "vf-cm-app-gw-failed-req-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -15,7 +15,7 @@
           "allOf": [
             {
               "field": "type",
-              "equals": "Microsoft.DBforPostgreSQL/flexibleServers"
+              "equals": "Microsoft.Network/applicaitonGateways"
             }
           ]
         },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-PostgreSQL-flx-server-memory-per-customerRG"
+                  "equals": "vf-core-cm-app-gw-failed-req-$customerRG"
                 }
               ]
             },
@@ -41,31 +41,31 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-PostgreSQL-flx-server-memory-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-app-gw-failed-req-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-PostgreSQL-flx-server-memory-per-customerRG",
-                        "description": "The Memory percentage for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
-                        "severity": 0,
+                        "displayName": "Application Gateway Failed Requests-$customerRG",
+                        "description": "Number of Failed Request for an Application Gateway has been crossed the threshold value",
+                        "severity": 1,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
-                          "Microsoft.DBforPostgreSQL/flexibleServers"
+                          "Microsoft.Network/applicaitonGateways"
                         ],
                         "windowSize": "PT5M",
                         "overrideQueryTimeRange": "P2D",
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.DBFORPOSTGRESQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('memory_percent')\n| summarize MEMORY_Maximum = max(Maximum), MEMORY_Minimum= min(Minimum), MEMORY_Average = avg(Average) by Resource , MetricName, _ResourceId",
-                              "timeAggregation": "Average",
-                              "metricMeasureColumn": "MEMORY_Average",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.NETWORK\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('FailedRequests')\n| summarize Total = sum(Total) by Resource , MetricName, _ResourceId",
+                              "timeAggregation": "Total",
+                              "metricMeasureColumn": "Total",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
-                              "threshold": 90,
+                              "threshold": 5,
                               "failingPeriods": {
                                 "numberOfEvaluationPeriods": 1,
                                 "minFailingPeriodsToAlert": 1
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

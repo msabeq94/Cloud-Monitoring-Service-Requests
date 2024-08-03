@@ -127,10 +127,10 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
 
     # Replace placeholders in the JSON content with actual values
     $jsonContentPolicy = $jsonContentPolicy `
-        -replace '\rgScope', $newResourceGroupId `
-        -replace '\Alocation', $newResourceGrouplocation  `
-        -replace '\customerRG', $newResourceGroupName `
-        -replace '\AactionGroupName', $actionGroupId 
+        -replace '\$rgScope', $newResourceGroupId `
+        -replace '\$Alocation', $newResourceGrouplocation  `
+        -replace '\$customerRG', $newResourceGroupName `
+        -replace '\$AactionGroupName', $actionGroupId 
 
     # Convert the JSON content to a PowerShell object
     $policyDefinition = $jsonContentPolicy 

@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-SQL-server-data-used-per-customerRG",
+    "name": "vf-cm-SQL-server-memory-per-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
-      "description": "This policy definition will deploy alert for the Data space used percent for a Azure SQL Database has been crossed the threshold value",
-      "displayName": "vf-cm-SQL-server-data-used-per-customerRG",
+      "description": "This policy definition will deploy alert for the Memory percent for a Azure SQL Database has been crossed the threshold value",
+      "displayName": "vf-cm-SQL-server-memory-per-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-SQL-server-data-space-used-per-customerRG"
+                  "equals": "vf-core-cm-SQL-server-memory-per-$customerRG"
                 }
               ]
             },
@@ -41,16 +41,16 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-SQL-server-data-space-used-per-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-SQL-server-memory-per-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "vf-core-cm-SQL-server-data-space-used-per-customerRG",
-                        "description": "The Data space used percent for a Azure SQL Database has been crossed the threshold value",
+                        "displayName": "vf-core-cm-SQL-server-memory-per-$customerRG",
+                        "description": "The Memory percent for a Azure SQL Database has been crossed the threshold value",
                         "severity": 0,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
                           "Microsoft.Sql/servers"
@@ -60,9 +60,9 @@
                         "criteria": {
                           "allOf": [
                             {
-                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.SQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('storage_percent')\n| summarize STORAGE_Maximum = max(Maximum), STORAGE_Minimum = min(Minimum), STORAGE_Average = avg(Average) by Resource , MetricName, _ResourceId",
+                              "query": "AzureMetrics\n| where ResourceProvider == \"MICROSOFT.SQL\" // /DATABASES\n| where TimeGenerated >= ago(60min)\n| where MetricName in ('memory_percent')\n| summarize MEMORY_Maximum = max(Maximum), MEMORY_Minimum= min(Minimum), MEMORY_Average = avg(Average) by Resource , MetricName, _ResourceId",
                               "timeAggregation": "Average",
-                              "metricMeasureColumn": "STORAGE_Average",
+                              "metricMeasureColumn": "MEMORY_Average",
                               "resourceIdColumn": "_ResourceId",
                               "operator": "GreaterThan",
                               "threshold": 90,
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }

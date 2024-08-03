@@ -1,11 +1,11 @@
 {
        
-    "name": "vf-cm-PSQL-flx-server-failed-conn-customerRG",
+    "name": "vf-cm-PSQL-flx-server-failed-conn-$customerRG",
     "properties": {
       "policyType": "Custom",
       "mode": "Indexed",
       "description": "This policy definition will deploy alert for number of Falied Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold valueNumber of Falied Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
-      "displayName": "vf-cm-PSQL-flx-server-failed-conn-customerRG",
+      "displayName": "vf-cm-PSQL-flx-server-failed-conn-$customerRG",
       "metadata": {
         "category": "Monitoring"
       },
@@ -27,7 +27,7 @@
               "allOf": [
                 {
                   "field": "name",
-                  "equals": "vf-core-cm-PostgreSQL-flx-server-failed-conn-customerRG"
+                  "equals": "vf-core-cm-PostgreSQL-flx-server-failed-conn-$customerRG"
                 }
               ]
             },
@@ -41,16 +41,16 @@
                     {
                       "type": "Microsoft.Insights/scheduledQueryRules",
                       "apiVersion": "2021-08-01",
-                      "name": "vf-core-cm-PostgreSQL-flx-server-failed-conn-customerRG",
-                      "location": "Alocation",
+                      "name": "vf-core-cm-PostgreSQL-flx-server-failed-conn-$customerRG",
+                      "location": "$Alocation",
                       "properties": {
-                        "displayName": "PostgreSQL Flexible Server Failed Connection-customerRG",
+                        "displayName": "PostgreSQL Flexible Server Failed Connection-$customerRG",
                         "description": "Number of Falied Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold valueNumber of Falied Connections for a Azure PostgreSQL Flexible Server Database has been crossed the threshold value",
                         "severity": 1,
                         "enabled": true,
                         "evaluationFrequency": "PT5M",
                         "scopes": [
-                          "rgScope"
+                          "$rgScope"
                         ],
                         "targetResourceTypes": [
                           "Microsoft.DBforPostgreSQL/flexibleServers"
@@ -75,7 +75,7 @@
                         },
                         "actions": {
                           "actionGroups": [
-                            "AactionGroupName"
+                            "$AactionGroupName"
                           ]
                         }
                       }
