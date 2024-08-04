@@ -6,7 +6,7 @@ $header = @{
     "Content-Type" = "application/json"
 }
 
-$RGhealthURI ="https://management.azure.com/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-UK-resources-rg/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$RGhealthURI ="https://management.azure.com/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
 
 $RGAlert= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
@@ -66,8 +66,9 @@ $AzLogAlertRuleExistingConditionV1 = @"
               ]
         },
         {
-            "anyOf": 
+            "anyOf": [
             $AzLogAlertRuleExistingConditionResourceType
+        ]
         }
     ]
 }
