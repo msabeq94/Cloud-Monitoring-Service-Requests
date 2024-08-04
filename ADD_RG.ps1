@@ -186,7 +186,9 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
     
     if ($AzLogAlertRuleeachLogAlert.properties.scopes -contains $newResourceGroupId) {
         Write-Output "The resource group $newResourceGroupName is already in the scope of $AlertNameAzLogAlertRule"
-    } else {
+    } elseif ($AlertNameAzLogAlertRule -eq "vf-core-cm-resource-health-alert") {
+        Write-Output "Ignoring alert: $AlertNameAzLogAlertRule"
+    }  else {
     $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupId  | ConvertTo-Json
     $AzLogAlertRuleexistingcondition= $($AzLogAlertRuleeachLogAlert).properties.condition | ConvertTo-Json
     $AzLogAlertRuleexistingcactions= $($AzLogAlertRuleeachLogAlert).properties.actions | ConvertTo-Json
@@ -324,12 +326,12 @@ $resourceGroupRG = $newResourceGroupName
 
 
 
-$RGhealthURIRG ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$RGhealthURIRG ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
 
 $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
-Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header  | ConvertTo-Json -Depth 100
+
 
   $newResourceGroupRG = @{
     "field" = "resourceGroup"
@@ -338,12 +340,14 @@ Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header  | ConvertTo-
       $resourceGroupExistsRG = $RGScopeRG | Where-Object { $_.equals -eq "$($resourceGroupRG)" }
       if ($null -eq $resourceGroupExistsRG) {
         $NEWRGAlertRG= Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header 
-        $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
+        $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" }
+        $NEWRGScopeRGV2 = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |convertto-json -depth 10 
         $equalsValueRG = $NEWRGScopeRG.equals
         $NEWRTyScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } 
+        $NEWRTyScopeRGv2 = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } |convertto-json -depth 10
         $equalsValueTYRG = $NEWRTyScopeRG.equals
         # Create a new array with $NEWRGScopeRG and $newResourceGroupRG
-        if ($NEWRGScopeRG.count -gt 1) {
+        if ($NEWRGScopeRGv2.count -gt 1) {
             $UpdateNEWRGScopeRG = $NEWRGScopeRG += $newResourceGroupRG
             $UpdateNEWRGScopev2RG = $UpdateNEWRGScopeRG | ConvertTo-Json -Depth 10
            
@@ -470,12 +474,12 @@ $AzLogAlertRuleExistingConditionV4RG = @"
 }
 "@
 
-if ($NEWRGScopeRG.count -eq 1 -and $NEWRTyScopeRG.count -gt 1) {
+if ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -gt 1) {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV1RG
  
-}elseif ($NEWRGScopeRG.count -gt 1 -and $NEWRTyScopeRG.count -eq 1) {
+}elseif ($NEWRGScopeRv2.count -gt 1 -and $NEWRTyScopeRGv2.count -eq 1) {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV2RG
-}elseif ($NEWRGScopeRG.count -eq 1 -and $NEWRTyScopeRG.count -eq 1) {
+}elseif ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -eq 1) {
       $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV3RG
 } else {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV4RG
@@ -512,6 +516,3 @@ if ($NEWRGScopeRG.count -eq 1 -and $NEWRTyScopeRG.count -gt 1) {
    
       
         
-    $updateUriAzLogAlertRule = "https://management.azure.com$($AlertIdAzLogAlertRule)?api-version=2017-04-01"
-          
-
