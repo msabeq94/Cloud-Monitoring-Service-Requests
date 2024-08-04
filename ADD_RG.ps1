@@ -57,7 +57,7 @@ $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalert
 #$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-#$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -174,6 +174,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
 ###############################################################################################
 #ADD_AzLogAlertRule 
 ###############################################################################################
+
 $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $URI_AzLogAlertRule 
 foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 
@@ -184,38 +185,82 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
     
     if ($AzLogAlertRuleeachLogAlert.properties.scopes -contains $newResourceGroupId) {
         Write-Output "The resource group $newResourceGroupName is already in the scope of $AlertNameAzLogAlertRule"
-    } elseif ($AlertNameAzLogAlertRule -eq "vf-core-cm-resource-health-alert") {
-        Write-Output "Ignoring alert: $AlertNameAzLogAlertRule"
     } else {
-        $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupId  | ConvertTo-Json
-        $AzLogAlertRuleexistingcondition= $($AzLogAlertRuleeachLogAlert).properties.condition | ConvertTo-Json
-        $AzLogAlertRuleexistingcactions= $($AzLogAlertRuleeachLogAlert).properties.actions | ConvertTo-Json
-        $AzLogAlertRuleexistingdescription = $($AzLogAlertRuleeachLogAlert).properties.description | ConvertTo-Json
-        $AzLogAlertRuleexistintags = $($AzLogAlertRuleeachLogAlert).tags | ConvertTo-Json
-        $AzLogAlertRuleexistinname = $($AzLogAlertRuleeachLogAlert).name | ConvertTo-Json
-        $AzLogAlertRuleexistinid =$($AzLogAlertRuleeachLogAlert).id| ConvertTo-Json
+    $updatedScopesAzLogAlertRule = $AzLogAlertRuleeachLogAlert.properties.scopes + $newResourceGroupId  | ConvertTo-Json
+    $AzLogAlertRuleexistingcondition= $($AzLogAlertRuleeachLogAlert).properties.condition | ConvertTo-Json
+    $AzLogAlertRuleexistingcactions= $($AzLogAlertRuleeachLogAlert).properties.actions | ConvertTo-Json
+    $AzLogAlertRuleexistingdescription = $($AzLogAlertRuleeachLogAlert).properties.description | ConvertTo-Json
+    $AzLogAlertRuleexistintags = $($AzLogAlertRuleeachLogAlert).tags | ConvertTo-Json
+    $AzLogAlertRuleexistinname = $($AzLogAlertRuleeachLogAlert).name | ConvertTo-Json
+    $AzLogAlertRuleexistinid =$($AzLogAlertRuleeachLogAlert).id| ConvertTo-Json
 
-        $BodyAzLogAlertRule = @"
-        {
-            "id": $AzLogAlertRuleexistinid,
-            "name": $AzLogAlertRuleexistinname,
-            "type": "Microsoft.Insights/ActivityLogAlerts",
-            "location": "global",
-            "tags": $AzLogAlertRuleexistintags,
-            "properties": {
-                "scopes": $updatedScopesAzLogAlertRule,
-                "condition": $AzLogAlertRuleexistingcondition,
-                "actions": $AzLogAlertRuleexistingcactions,
-                "enabled": true,
-                "description": $AzLogAlertRuleexistingDescription
-            }
-        }
-        "@
-        $update = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
-        $newResourceGroupIdout = $($update).properties.scopes | ConvertTo-Json
-        Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
+$BodyAzLogAlertRule = @"
+{
+    "id": $AzLogAlertRuleexistinid,
+    "name": $AzLogAlertRuleexistinname,
+    "type": "Microsoft.Insights/ActivityLogAlerts",
+    "location": "global",
+    "tags": $AzLogAlertRuleexistintags,
+    "properties": {
+        "scopes": $updatedScopesAzLogAlertRule,
+        "condition": $AzLogAlertRuleexistingcondition,
+        "actions": $AzLogAlertRuleexistingcactions,
+        "enabled": true,
+        "description": $AzLogAlertRuleexistingDescription
     }
 }
+"@
+$update = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
+$newResourceGroupIdout = $($update).properties.scopes | ConvertTo-Json
+Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
+}}
+
+###############################################################################################
+#ADD_AzMetricAlertRule-per VM location
+###############################################################################################
+$AllMetricAlert = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
+$ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
+
+if (-not $ExistingMetricAlert) {
+    $jsonFilePathsMetricAlert = @(
+        "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "vf-core-cm-vm-availability.json",
+        "vf-core-cm-vm-available-memory.json",
+        "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "vf-core-cm-vm-cpu-percentage.json"
+    )
+    
+     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
+    $apiVersion = "?api-version=2018-03-01"
+    $alertNames = @(
+        "vf-core-cm-vm-data-disk-iops-consumed-percentage-$($vmLocation)",
+        "vf-core-cm-vm-availability-$($vmLocation)",
+        "vf-core-cm-vm-available-memory-$($vmLocation)",
+        "vf-core-cm-VM-os-disk-iops-consumed-percentage-$($vmLocation)",
+        "vf-core-cm-vm-cpu-percentage-$($vmLocation)"
+    )
+
+    for ($i = 0; $i -lt $jsonFilePathsMetricAlert.Length; $i++) {
+        $jsonFilePath = $jsonFilePathsMetricAlert[$i]
+        $alertName = $alertNames[$i]
+
+        $jsonContent = Get-Content -Path $jsonFilePath -Raw
+        $modifiedJsonContent = $jsonContent `
+            -replace '\$subscriptionID', $subscriptionID `
+            -replace '\$PCRalertResourceGroup', $PCRalertResourceGroupv2 `
+            -replace '\$VMlocation', $vmLocation `
+            -replace '\$newResourceGroupName', $newResourceGroupName `
+            -replace '\$actionGroupName', $actionGroupName 
+
+        $uriMetric = " $uriBaseMetricAlert/$alertName$apiVersion"
+        $Matupdatev1 = Invoke-RestMethod -Uri $uriMetric -Method Put -Headers $header -Body $modifiedJsonContent
+
+        Write-Output "Created metric alert rule: $alertName"
+
+        $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
+        Write-Output "$alertName new scope $MetricsnewScopeoutv1"
+
+    }
 } else {
      
     $MAexistingmetricalerts = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
@@ -269,8 +314,7 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
   Write-Output "$MalertName new scope $MetricsnewScopeout"
     }
-}
-
+}}
 ###############################################################################################
 #  RG-Health-Alert
 ###############################################################################################
@@ -467,6 +511,6 @@ if ($NEWRGScopeRG.count -eq 1 -and $NEWRTyScopeRG.count -gt 1) {
    
       
         
-    
+    $updateUriAzLogAlertRule = "https://management.azure.com$($AlertIdAzLogAlertRule)?api-version=2017-04-01"
           
 
