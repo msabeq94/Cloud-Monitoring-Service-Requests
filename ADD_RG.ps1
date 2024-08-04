@@ -58,7 +58,7 @@ $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalert
 #$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$RGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -321,15 +321,8 @@ if (-not $ExistingMetricAlert) {
 ###############################################################################################
 #  RG-Health-Alert
 ###############################################################################################
-
 $resourceGroupRG = $newResourceGroupName
-
-
-
-$RGhealthURIRG ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
-
-
-$RGAlertRG= Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header 
+$RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
 
 
@@ -339,15 +332,24 @@ $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.fie
   } 
       $resourceGroupExistsRG = $RGScopeRG | Where-Object { $_.equals -eq "$($resourceGroupRG)" }
       if ($null -eq $resourceGroupExistsRG) {
-        $NEWRGAlertRG= Invoke-RestMethod -Uri $RGhealthURIRG -Method get -Headers $header 
-        $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" }
-        $NEWRGScopeRGV2 = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |convertto-json -depth 10 
+        $NEWRGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
+        $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
+        $resourceGroupCountRG = $NEWRGScopeRG.count
         $equalsValueRG = $NEWRGScopeRG.equals
+        if ($resourceGroupCountRG -eq $null) {
+           
+            $resourceGroupCountRG = "1"
+        }
         $NEWRTyScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } 
-        $NEWRTyScopeRGv2 = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } |convertto-json -depth 10
         $equalsValueTYRG = $NEWRTyScopeRG.equals
+        $resourceTyCountRG = $NEWRTyScopeRG.count
+
+        if ($resourceTyCountRG -eq $null) {
+           
+            $resourceTyCountRG = "1"
+        }
         # Create a new array with $NEWRGScopeRG and $newResourceGroupRG
-        if ($NEWRGScopeRGv2.count -gt 1) {
+        if ($resourceGroupCountRG -ne "1") {
             $UpdateNEWRGScopeRG = $NEWRGScopeRG += $newResourceGroupRG
             $UpdateNEWRGScopev2RG = $UpdateNEWRGScopeRG | ConvertTo-Json -Depth 10
            
@@ -377,25 +379,24 @@ $AzLogAlertRuleExistingConditionV1RG = @"
         },
         {
             "anyOf": [
-                        {
-                        "field": "resourceGroup",
-                        "equals": "$($equalsValueRG)"
-                        },
-                        {
-                        "field": "resourceGroup",
-                        "equals": "$($resourceGroupRG)"
-                        }
+                {
+                  "field": "resourceGroup",
+                  "equals": "$($equalsValueRG)"
+                },
+                {
+                  "field": "resourceGroup",
+                  "equals": "$($resourceGroupRG)"
+                }
               ]
         },
         {
             "anyOf": 
-                        $AzLogAlertRuleExistingConditionResourceTypeRG
-        
+            $AzLogAlertRuleExistingConditionResourceTypeRG
         }
     ]
 }
 "@
-########
+
 #mult RG & one RGTY
 $AzLogAlertRuleExistingConditionV2RG = @"
 {
@@ -474,12 +475,12 @@ $AzLogAlertRuleExistingConditionV4RG = @"
 }
 "@
 
-if ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -gt 1) {
+if ($resourceGroupCountRG -eq "1" -and $resourceTyCountRG -ne "1") {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV1RG
  
-}elseif ($NEWRGScopeRv2.count -gt 1 -and $NEWRTyScopeRGv2.count -eq 1) {
+}elseif ($resourceGroupCountRG -ne "1" -and $resourceTyCountRG -eq "1") {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV2RG
-}elseif ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -eq 1) {
+}elseif ($resourceGroupCountRG -eq "1" -and $resourceTyCountRG -eq "1") {
       $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV3RG
 } else {
   $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV4RG
@@ -505,7 +506,7 @@ if ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -gt 1) {
 "@
 
       
-      $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURIRG -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
+      $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
       $RGScopeUPdateRG = $RGAlertPUTRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
       write-output $RGScopeUPdateRG
       start-sleep -s 5
@@ -516,3 +517,6 @@ if ($NEWRGScopeRGv2.count -eq 1 -and $NEWRTyScopeRGv2.count -gt 1) {
    
       
         
+    
+          
+
