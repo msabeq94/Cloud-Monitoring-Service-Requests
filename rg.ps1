@@ -1,4 +1,4 @@
-$resourceGroup = "VF-01"
+$resourceGroup = $newResourceGroupName
 
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 $header = @{
@@ -11,7 +11,7 @@ $RGhealthURI ="https://management.azure.com/subscriptions/24b4b7e2-6a4a-4418-886
 
 $RGAlert= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScope = $RGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
-
+#Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header  | ConvertTo-Json -Depth 100
 
   $newResourceGroup = @{
     "field" = "resourceGroup"
@@ -55,20 +55,20 @@ $AzLogAlertRuleExistingConditionV1 = @"
         },
         {
             "anyOf": [
-                {
-                  "field": "resourceGroup",
-                  "equals": "$($equalsValueRG)"
-                },
-                {
-                  "field": "resourceGroup",
-                  "equals": "$($resourceGroup)"
-                }
+                        {
+                        "field": "resourceGroup",
+                        "equals": "$($equalsValueRG)"
+                        },
+                        {
+                        "field": "resourceGroup",
+                        "equals": "$($resourceGroup)"
+                        }
               ]
         },
         {
-            "anyOf": [
-            $AzLogAlertRuleExistingConditionResourceType
-        ]
+            "anyOf": 
+                        $AzLogAlertRuleExistingConditionResourceType
+        
         }
     ]
 }

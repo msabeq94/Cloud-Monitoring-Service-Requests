@@ -57,7 +57,7 @@ $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalert
 #$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+#$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -275,47 +275,51 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 #  RG-Health-Alert
 ###############################################################################################
 
+$resourceGroup = $newResourceGroupName
 
 
-$HRGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
-$HRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $header 
-$HRGScope = $HRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
+$RGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 
-$hnewResourceGroup = @{
+
+$RGAlert= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
+$RGScope = $RGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
+Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header  | ConvertTo-Json -Depth 100
+
+  $newResourceGroup = @{
     "field" = "resourceGroup"
-    "equals" = "$($newResourceGroup)"
+    "equals" = "$($resourceGroup)"
   } 
-      $HresourceGroupExists = $HRGScope | Where-Object { $_.equals -eq "$($newResourceGroup)" }
-      if ($null -eq $HresourceGroupExists) {
-        $HNEWRGAlert= Invoke-RestMethod -Uri $HRGhealthURI -Method get -Headers $header 
-        $HNEWRGScope = $HNEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
-        $HequalsValueRG = $HNEWRGScope.equals
-        $HNEWRTyScope = $HNEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } 
-        $HequalsValueTY = $HNEWRTyScope.equals
-        # Create a new array with $HNEWRGScope and $newResourceGroup
-        if ($HNEWRGScope.count -gt 1) {
-            $HUpdateNEWRGScope = $HNEWRGScope += $hnewResourceGroup
-            $HUpdateNEWRGScopev2 = $HUpdateNEWRGScope | ConvertTo-Json -Depth 10
+      $resourceGroupExists = $RGScope | Where-Object { $_.equals -eq "$($resourceGroup)" }
+      if ($null -eq $resourceGroupExists) {
+        $NEWRGAlert= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
+        $NEWRGScope = $NEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
+        $equalsValueRG = $NEWRGScope.equals
+        $NEWRTyScope = $NEWRGAlert.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceType" } 
+        $equalsValueTY = $NEWRTyScope.equals
+        # Create a new array with $NEWRGScope and $newResourceGroup
+        if ($NEWRGScope.count -gt 1) {
+            $UpdateNEWRGScope = $NEWRGScope += $newResourceGroup
+            $UpdateNEWRGScopev2 = $UpdateNEWRGScope | ConvertTo-Json -Depth 10
            
           }
-        $HAzLogAlertRuleeachLogAlert =  $HNEWRGAlert
+        $AzLogAlertRuleeachLogAlert =  $NEWRGAlert
         
-        $HAzLogAlertRuleExistingId = $HAzLogAlertRuleeachLogAlert.id | ConvertTo-Json
-        $HAzLogAlertRuleExistingName = $HAzLogAlertRuleeachLogAlert.name | ConvertTo-Json
-        $HAzLogAlertRuleExistingTags = $HAzLogAlertRuleeachLogAlert.tags | ConvertTo-Json
-        $HAzLogAlertRuleExistinScopes = $HAzLogAlertRuleeachLogAlert.properties.scopes | ConvertTo-Json
-        $HAzLogAlertRuleExistinScopesv2 = @"
+        $AzLogAlertRuleExistingId = $AzLogAlertRuleeachLogAlert.id | ConvertTo-Json
+        $AzLogAlertRuleExistingName = $AzLogAlertRuleeachLogAlert.name | ConvertTo-Json
+        $AzLogAlertRuleExistingTags = $AzLogAlertRuleeachLogAlert.tags | ConvertTo-Json
+        $AzLogAlertRuleExistinScopes = $AzLogAlertRuleeachLogAlert.properties.scopes | ConvertTo-Json
+        $AzLogAlertRuleExistinScopesv2 = @"
 [
-  $HAzLogAlertRuleExistinScopes
+  $AzLogAlertRuleExistinScopes
 ]
 "@
         
-        $HAzLogAlertRuleExistingConditionResourceGroup = $HUpdateNEWRGScopev2   #| ConvertTo-Json -Depth 10
-        $HAzLogAlertRuleExistingConditionResourceType = $HNEWRTyScope | ConvertTo-Json -Depth 10
+        $AzLogAlertRuleExistingConditionResourceGroup = $UpdateNEWRGScopev2   #| ConvertTo-Json -Depth 10
+        $AzLogAlertRuleExistingConditionResourceType = $NEWRTyScope | ConvertTo-Json -Depth 10
 
 # 1 RG and mut RGTY
-$HAzLogAlertRuleExistingConditionV1 = @"
+$AzLogAlertRuleExistingConditionV1 = @"
 {
     "allOf": [
         {
@@ -324,26 +328,27 @@ $HAzLogAlertRuleExistingConditionV1 = @"
         },
         {
             "anyOf": [
-                {
-                  "field": "resourceGroup",
-                  "equals": "$($HequalsValueRG)"
-                },
-                {
-                  "field": "resourceGroup",
-                  "equals": "$($newResourceGroup)"
-                }
+                        {
+                        "field": "resourceGroup",
+                        "equals": "$($equalsValueRG)"
+                        },
+                        {
+                        "field": "resourceGroup",
+                        "equals": "$($resourceGroup)"
+                        }
               ]
         },
         {
             "anyOf": 
-            $HAzLogAlertRuleExistingConditionResourceType
+                        $AzLogAlertRuleExistingConditionResourceType
+        
         }
     ]
 }
 "@
 
 #mult RG & one RGTY
-$HAzLogAlertRuleExistingConditionV2 = @"
+$AzLogAlertRuleExistingConditionV2 = @"
 {
     "allOf": [
         {
@@ -352,13 +357,13 @@ $HAzLogAlertRuleExistingConditionV2 = @"
         },
         {
             "anyOf": 
-            $HAzLogAlertRuleExistingConditionResourceGroup
+            $AzLogAlertRuleExistingConditionResourceGroup
         },
         {
             "anyOf": [
               {
                 "field": "resourceType",
-                "equals": "$($HequalsValueTY)"
+                "equals": "$($equalsValueTY)"
               }
             ]
             
@@ -368,7 +373,7 @@ $HAzLogAlertRuleExistingConditionV2 = @"
 "@
 
 #1 RG & 1 RGTY
-$HAzLogAlertRuleExistingConditionV3 = @"
+$AzLogAlertRuleExistingConditionV3 = @"
   {
       "allOf": [
           {
@@ -379,11 +384,11 @@ $HAzLogAlertRuleExistingConditionV3 = @"
               "anyOf": [
                   {
                     "field": "resourceGroup",
-                    "equals": "$($HequalsValueRG)"
+                    "equals": "$($equalsValueRG)"
                   },
                   {
                     "field": "resourceGroup",
-                    "equals": "$($newResourceGroup)"
+                    "equals": "$($resourceGroup)"
                   }
                 ]
           },
@@ -391,7 +396,7 @@ $HAzLogAlertRuleExistingConditionV3 = @"
               "anyOf": [
                 {
                   "field": "resourceType",
-                  "equals": "$($HequalsValueTY)"
+                  "equals": "$($equalsValueTY)"
                 }
               ]
               
@@ -401,7 +406,7 @@ $HAzLogAlertRuleExistingConditionV3 = @"
 "@
 
 #mut RG & Mut RGTY
-$HAzLogAlertRuleExistingConditionV4 = @"
+$AzLogAlertRuleExistingConditionV4 = @"
 {
     "allOf": [
         {
@@ -410,51 +415,58 @@ $HAzLogAlertRuleExistingConditionV4 = @"
         },
         {
             "anyOf": 
-            $HAzLogAlertRuleExistingConditionResourceGroup
+            $AzLogAlertRuleExistingConditionResourceGroup
         },
         {
             "anyOf": 
-            $HAzLogAlertRuleExistingConditionResourceType
+            $AzLogAlertRuleExistingConditionResourceType
         }
     ]
 }
 "@
 
-if ($HNEWRGScope.count -eq 1 -and $HNEWRTyScope.count -gt 1) {
-  $HUPAzLogAlertRuleExistingCondition = $HAzLogAlertRuleExistingConditionV1
+if ($NEWRGScope.count -eq 1 -and $NEWRTyScope.count -gt 1) {
+  $UPAzLogAlertRuleExistingCondition = $AzLogAlertRuleExistingConditionV1
  
-}elseif ($HNEWRGScope.count -gt 1 -and $HNEWRTyScope.count -eq 1) {
-  $HUPAzLogAlertRuleExistingCondition = $HAzLogAlertRuleExistingConditionV2
-}elseif ($HNEWRGScope.count -eq 1 -and $HNEWRTyScope.count -eq 1) {
-      $HUPAzLogAlertRuleExistingCondition = $HAzLogAlertRuleExistingConditionv3
+}elseif ($NEWRGScope.count -gt 1 -and $NEWRTyScope.count -eq 1) {
+  $UPAzLogAlertRuleExistingCondition = $AzLogAlertRuleExistingConditionV2
+}elseif ($NEWRGScope.count -eq 1 -and $NEWRTyScope.count -eq 1) {
+      $UPAzLogAlertRuleExistingCondition = $AzLogAlertRuleExistingConditionv3
 } else {
-  $HUPAzLogAlertRuleExistingCondition = $HAzLogAlertRuleExistingConditionV4
+  $UPAzLogAlertRuleExistingCondition = $AzLogAlertRuleExistingConditionV4
 }
-        $HAzLogAlertRuleExistingActions = $HAzLogAlertRuleeachLogAlert.properties.actions | ConvertTo-Json
-        $HAzLogAlertRuleExistingDescription = $HAzLogAlertRuleeachLogAlert.properties.description | ConvertTo-Json
+        $AzLogAlertRuleExistingActions = $AzLogAlertRuleeachLogAlert.properties.actions | ConvertTo-Json
+        $AzLogAlertRuleExistingDescription = $AzLogAlertRuleeachLogAlert.properties.description | ConvertTo-Json
 
-      $HBodyAzLogAlertRule = @"
+      $BodyAzLogAlertRule = @"
 {
-    "id": $HAzLogAlertRuleExistingId,
-    "name": $HAzLogAlertRuleExistingName,
+    "id": $AzLogAlertRuleExistingId,
+    "name": $AzLogAlertRuleExistingName,
     "type": "Microsoft.Insights/ActivityLogAlerts",
     "location": "global",
-    "tags": $HAzLogAlertRuleExistingTags,
+    "tags": $AzLogAlertRuleExistingTags,
     "properties": {
-        "scopes": $HAzLogAlertRuleExistinScopesv2,
-        "condition": $HUPAzLogAlertRuleExistingCondition,
-        "actions": $HAzLogAlertRuleExistingActions,
+        "scopes": $AzLogAlertRuleExistinScopesv2,
+        "condition": $UPAzLogAlertRuleExistingCondition,
+        "actions": $AzLogAlertRuleExistingActions,
         "enabled": true,
-        "description": $HAzLogAlertRuleExistingDescription
+        "description": $AzLogAlertRuleExistingDescription
     }
 }
 "@
 
       
-      $HRGAlertPUT= Invoke-RestMethod -Uri $HRGhealthURI -Method put   -Headers $header  -Body $HBodyAzLogAlertRule
-      $HRGScopeUPdate = $HRGAlertPUT.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
-      write-output $HRGScopeUPdate
+      $RGAlertPUT= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRule
+      $RGScopeUPdate = $RGAlertPUT.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
+      write-output $RGScopeUPdate
       start-sleep -s 5
       }else {
-        Write-Output "Resource Group neme $($newResourceGroup) does exist in the alert scope "
+        Write-Output "Resource Group neme $($resourceGroup) does exist in the alert scope "
     } 
+  
+   
+      
+        
+    
+          
+
