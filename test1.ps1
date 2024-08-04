@@ -2,7 +2,7 @@ $resourceGroupRG = $newResourceGroupName
 $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
 
-
+vf-core-cm-resource-health-alert
   $newResourceGroupRG = @{
     "field" = "resourceGroup"
     "equals" = "$($resourceGroupRG)"
