@@ -390,7 +390,7 @@ $AzLogAlertRuleExistingConditionV1RG = @"
     ]
 }
 "@
-
+########
 #mult RG & one RGTY
 $AzLogAlertRuleExistingConditionV2RG = @"
 {
