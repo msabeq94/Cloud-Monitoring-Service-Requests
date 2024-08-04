@@ -1,4 +1,5 @@
 
+#az-connect -tenant "4d173968-5bfa-4bf7-be33-a98c9a6e610d" -subscription "24b4b7e2-6a4a-4418-8868-9f51dfeca509" 
 $OpColist  =  @{
     "1"  =  "UK"
     "2"  =  "IT"
