@@ -86,7 +86,7 @@ $DS_policyDefinitions = @(
 foreach ($DS_policyDefinition in $DS_policyDefinitions) {
     $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
-    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
     if ($null -eq $DS_existingpolicyAssignment) {
         New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
