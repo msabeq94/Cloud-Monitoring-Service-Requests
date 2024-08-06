@@ -197,3 +197,22 @@ if ($resourceGroupCountRG -eq "1" -and $resourceTyCountRG -ne "1") {
     
           
 
+Install-module -name "az.accounts" -force -RequiredVersion '2.13.1' -Scope CurrentUser -AllowClobber
+import-module -name "az" -force
+
+
+
+# List all available Azure modules
+$modules = Get-Module -ListAvailable Az.*
+
+# Loop through each module and unblock the specified file
+foreach ($module in $modules) {
+    $modulePath = $module.ModuleBase
+    $assemblyPath = Join-Path -Path $modulePath -ChildPath 'Microsoft.Azure.PowerShell.AssemblyLoading.dll'
+    if (Test-Path -Path $assemblyPath) {
+        Unblock-File -Path $assemblyPath
+        Write-Output "Unblocked: $assemblyPath"
+    } else {
+        Write-Output "File not found: $assemblyPath"
+    }
+}
