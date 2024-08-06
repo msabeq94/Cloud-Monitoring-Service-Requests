@@ -60,8 +60,13 @@ $TS_policyParameters = @{
 }
 $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
 $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
-New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
-Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+$TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+if ($null -ne $TS_existingpolicyAssignment) {
+    Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+} else {
+    New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+    Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+}
 
 $DS_policyParameters = @{
     "logAnalytics" = "$logAnalyticsWorkspaceId"
@@ -78,8 +83,14 @@ $DS_policyDefinitions = @(
 foreach ($DS_policyDefinition in $DS_policyDefinitions) {
     $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
-    New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
-    Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+
+    if ($null -ne $DS_existingpolicyAssignment) {
+        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+    } else {
+        New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+        Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+    }
 }
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -166,7 +177,6 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     if ($null -ne $existingpolicyAssignment) {
         Write-Output "The policy $policyName is already assigned to the resource group $newResourceGroupName."
     } else {
-    y
     $NewpolicyDefinition = Get-AzPolicyDefinition -Name $policyName
     Start-Sleep -Milliseconds 5
     $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location

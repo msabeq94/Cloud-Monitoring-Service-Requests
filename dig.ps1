@@ -31,6 +31,17 @@ $DS_policyDefinitions = @(
 foreach ($DS_policyDefinition in $DS_policyDefinitions) {
     $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
+
+    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+
+    if ($null -ne $DS_existingpolicyAssignment) {
+        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+    } else {
+        New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+        Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+    }
+
+
     New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
      # Output the assignment status
      Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
@@ -44,9 +55,15 @@ $TS_policyParameters = @{
     }
     $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
     $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
+    
+    $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+
+if ($null -ne $TS_existingpolicyAssignment) {
+    Write-Output "The policy$TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+} else {
     New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
     Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
-    
+}
 #############
 $SDS_policyParameters = @{
     "logAnalytics" = $logAnalyticsWorkspaceId
