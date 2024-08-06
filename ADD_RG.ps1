@@ -1,3 +1,4 @@
+$WarningPreference = 'SilentlyContinue'
 $OpColist  =  @{
     "1"  =  "UK"
     "2"  =  "IT"
@@ -16,11 +17,12 @@ while ($true) {
     if ($OpColist.ContainsKey($choiceOpCO)) {
         $OpCo  =  $OpColist[$choiceOpCO]
         Write-Host "OpCO  =  $OpCo"
-        $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
+        $secureToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com" -AsSecureString).Token
+        $accessToken = [System.Net.NetworkCredential]::new("", $secureToken).Password
         $header = @{
             "Authorization" = "Bearer $accessToken"
             "Content-Type" = "application/json"
-        }  
+        } 
         break
     } else {
     Write-Host "Error: Invalid choice. Please select a valid option."
@@ -61,11 +63,12 @@ $TS_policyParameters = @{
 $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
 $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
 $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-if ($null -ne $TS_existingpolicyAssignment) {
-    Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-} else {
+if ($null -eq $TS_existingpolicyAssignment) {
     New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
     Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+} else {
+    Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+    
 }
 
 $DS_policyParameters = @{
@@ -85,11 +88,13 @@ foreach ($DS_policyDefinition in $DS_policyDefinitions) {
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
     $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
-    if ($null -ne $DS_existingpolicyAssignment) {
-        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-    } else {
+    if ($null -eq $DS_existingpolicyAssignment) {
         New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
         Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+        
+    } else {
+        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+        
     }
 }
 ###############################################################################################
@@ -523,11 +528,13 @@ if ($null -eq $resourceGroupExistsRG) {
 ###############################################################################################
 do {
     $addResourceGroup = Read-Host "Do you want to add another resource group? (yes/no)"
-    $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
-    $header = @{
-        "Authorization" = "Bearer $accessToken"
-        "Content-Type" = "application/json"
-    } 
+    $secureToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com" -AsSecureString).Token
+    $accessToken = [System.Net.NetworkCredential]::new("", $secureToken).Password
+
+$header = @{
+    "Authorization" = "Bearer $accessToken"
+    "Content-Type" = "application/json"
+}
     if ([string]::IsNullOrEmpty($addResourceGroup) -or $addResourceGroup -eq "yes" -or $addResourceGroup -eq "y") {
         $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
         $addVMLocation = Read-Host "Do you want to cahnge virtual machine location? (yes/no)
@@ -545,23 +552,23 @@ Curent : $vmLocation
         $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
         $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
         $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-        if ($null -ne $TS_existingpolicyAssignment) {
-            Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-        } else {
+        if ($null -eq $TS_existingpolicyAssignment) {
             New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
             Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+        } else {
+            Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+            
         }
-        
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
             $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
             $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
             $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
-            if ($null -ne $DS_existingpolicyAssignment) {
-                Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-            } else {
+            if ($null -eq $DS_existingpolicyAssignment) {
                 New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
                 Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+            } else {
+                Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
             }
         }
     ###############################################################################################
@@ -981,3 +988,5 @@ if ($null -eq $resourceGroupExistsRG) {
         } 
     }
 } while ($addResourceGroup -eq "yes" -or $addResourceGroup -eq "y" -or [string]::IsNullOrEmpty($addResourceGroup))
+
+$WarningPreference = 'Continue'
