@@ -1,5 +1,5 @@
 
-#az-connect -tenant "4d173968-5bfa-4bf7-be33-a98c9a6e610d" -subscription "24b4b7e2-6a4a-4418-8868-9f51dfeca509" 
+#Connect-AzAccount -tenant "4d173968-5bfa-4bf7-be33-a98c9a6e610d" -subscription "24b4b7e2-6a4a-4418-8868-9f51dfeca509" 
 $OpColist  =  @{
     "1"  =  "UK"
     "2"  =  "IT"
@@ -58,7 +58,7 @@ $userAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName  $PCRalert
 #$newResourceGroupId = "/subscriptions/$subscriptionID/resourceGroups/$newResourceGroupName"
 $URI_AzLogAlertRule = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $URI_MetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts?api-version=2018-03-01"
-$RGhealthURI ="https://management.azure.com/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
+$RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
 $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
@@ -336,7 +336,7 @@ $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.fie
         $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
         $resourceGroupCountRG = $NEWRGScopeRG.count
         $equalsValueRG = $NEWRGScopeRG.equals
-        if ($resourceGroupCountRG -eq $null) {
+        if ($null -eq $resourceGroupCountRG) {
            
             $resourceGroupCountRG = "1"
         }
@@ -344,7 +344,7 @@ $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.fie
         $equalsValueTYRG = $NEWRTyScopeRG.equals
         $resourceTyCountRG = $NEWRTyScopeRG.count
 
-        if ($resourceTyCountRG -eq $null) {
+        if ($null -eq $resourceTyCountRG) {
            
             $resourceTyCountRG = "1"
         }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "7095263588455818143"
+      "templateHash": "8502321035802536731"
     }
   },
   "parameters": {
@@ -15,7 +15,7 @@
     },
     "newActionGroupId": {
       "type": "string",
-      "defaultValue": "/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-monitoring-notifications"
+      "defaultValue": "/subscriptions/24b4b7e2-6a4a-4418-8868-9f51dfeca509/resourceGroups/vf-core-IT-resources-rg/providers/microsoft.insights/actiongroups/vf-core-cm-notifications"
     },
     "subscriptionId": {
       "type": "string",
