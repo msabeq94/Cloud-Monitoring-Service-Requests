@@ -67,10 +67,10 @@ $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -S
 if ($null -eq $TS_existingpolicyAssignment) {
     $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
     Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
-    Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+    Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
     Write-Output "Remediation task started for policy $TS_PolicynameASS."
 } else {
-    Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+    Write-Output "The policy vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
     
 }
 
@@ -282,7 +282,10 @@ if (-not $ExistingMetricAlert) {
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope $MetricsnewScopeoutv1"
+        Write-Output "$alertName new scope :
+    [
+        $MetricsnewScopeoutv1
+    ]"
 
     }
 } else {
@@ -542,9 +545,9 @@ $header = @{
 }
     if ([string]::IsNullOrEmpty($addResourceGroup) -or $addResourceGroup -eq "yes" -or $addResourceGroup -eq "y") {
         $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
-        $addVMLocation = Read-Host "Do you want to cahnge virtual machine location? (yes/no)
+        $addVMLocation = Read-Host "Do you want to cahnge virtual machine location? 
 Curent : $vmLocation 
-"
+(yes/no) "
         if ([string]::IsNullOrEmpty($addVMLocation) -or $addVMLocation -eq "yes" -or $addVMLocation -eq "y") {
             $vmLocation = Read-Host "Enter the location of the VMs to monitor"
         }
@@ -561,10 +564,10 @@ Curent : $vmLocation
         if ($null -eq $TS_existingpolicyAssignment) {
             $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
             Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
-            Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+            Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
             Write-Output "Remediation task started for policy $TS_PolicynameASS."
         } else {
-            Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+            Write-Output "The policy  vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
         }
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
             $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
@@ -759,7 +762,10 @@ Curent : $vmLocation
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope $MetricsnewScopeoutv1"
+        Write-Output "$alertName new scope :
+        [
+            $MetricsnewScopeoutv1
+        ]"
 
     }
 } else {
