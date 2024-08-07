@@ -1,3 +1,4 @@
+$WarningPreference = 'SilentlyContinue'
 $OpColist  =  @{
     "1"  =  "UK"
     "2"  =  "IT"
@@ -16,11 +17,12 @@ while ($true) {
     if ($OpColist.ContainsKey($choiceOpCO)) {
         $OpCo  =  $OpColist[$choiceOpCO]
         Write-Host "OpCO  =  $OpCo"
-        $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
+        $secureToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com" -AsSecureString).Token
+        $accessToken = [System.Net.NetworkCredential]::new("", $secureToken).Password
         $header = @{
             "Authorization" = "Bearer $accessToken"
             "Content-Type" = "application/json"
-        }  
+        } 
         break
     } else {
     Write-Host "Error: Invalid choice. Please select a valid option."
@@ -58,14 +60,18 @@ $TS_policyParameters = @{
     "tagName" = "vf-core-cloud-monitoring"
     "tagValue" = "true"
 }
-$TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
+$TS_PolicynameASS1 ="vf-core-cm-tag-resources-$($newResourceGroupName)"
+$TS_PolicynameASS = $TS_PolicynameASS1
 $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
 $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-if ($null -ne $TS_existingpolicyAssignment) {
-    Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+if ($null -eq $TS_existingpolicyAssignment) {
+    $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+    Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
+    Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
+    Write-Output "Remediation task started for policy $TS_PolicynameASS."
 } else {
-    New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
-    Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+    Write-Output "The policy vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
+    
 }
 
 $DS_policyParameters = @{
@@ -81,15 +87,19 @@ $DS_policyDefinitions = @(
     "vf-core-cm-diag-setg-for-app-gw-to-log-anl"
 )
 foreach ($DS_policyDefinition in $DS_policyDefinitions) {
-    $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
+    $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
+    $DS_PolicynameASS = $DS_PolicynameASS1
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
-    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+    $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
-    if ($null -ne $DS_existingpolicyAssignment) {
-        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-    } else {
-        New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+    if ($null -eq $DS_existingpolicyAssignment) {
+        $DS_policyAssignment = New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+        Start-AzPolicyRemediation  -Name "$DS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $DS_policyAssignment.Id -scope $DS_policyAssignment.Scope
         Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+        Write-Output "Remediation task started for policy $DS_PolicynameASS."
+    } else {
+        Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+        
     }
 }
 ###############################################################################################
@@ -97,30 +107,30 @@ foreach ($DS_policyDefinition in $DS_policyDefinitions) {
 ###############################################################################################
 
 $jsonFilePathsPolicy = @(
-    "vf-cm-blob-services-availability.json",
-    "vf-cm-storage-account-avl.json",
-    "vf-cm-file-services-avl.json",
-    "vf-cm-SQL-server-cpu-per.json",
-    "vf-cm-SQL-server-memory-per.json",
-    "vf-cm-SQL-server-data-used-per.json",
-    "vf-cm-SQL-server-failed-conn.json",
-    "vf-cm-SQL-server-dtu-per.json",
-    "vf-cm-SQL-server-log-IO-per-conn.json",
-    "vf-cm-SQL-server-data-IO-per.json",
-    "vf-cm-PSQL-flx-server-cpu-per.json",
-    "vf-cm-PSQL-flx-server-memory-per.json",
-    "vf-cm-PSQL-flx-server-storage-per.json",
-    "vf-cm-PSQL-flx-server-act-conn-xceed.json",
-    "vf-cm-PSQL-flx-server-failed-conn.json",
-    "vf-cm-PSQL-flx-server-rep-lag.json",
-    "vf-cm-MySQL-flx-server-host-cpu-per.json",
-    "vf-cm-MySQL-flx-server-host-memory-per.json",
-    "vf-cm-MySQL-flx-server-storage-per.json",
-    "vf-cm-MySQL-flx-server-act-conn-xceed.json",
-    "vf-cm-MySQL-flx-server-aborted-conn.json",
-    "vf-cm-MySQL-flx-server-replica-lag.json",
-    "vf-cm-app-gw-unhealthyhost-count-lag.json",
-    "vf-cm-app-gw-failed-req-.json"
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-file-services-avl.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-used-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-failed-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-dtu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-log-IO-per-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-IO-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-storage-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-act-conn-xceed.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-failed-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-rep-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-storage-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-act-conn-xceed.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-aborted-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-replica-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-unhealthyhost-count-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-failed-req-.json"
 )
 $policyNames = @(
     "vf-cm-blob-services-availability-$newResourceGroupName",
@@ -237,11 +247,11 @@ $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-
 
 if (-not $ExistingMetricAlert) {
     $jsonFilePathsMetricAlert = @(
-        "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
-        "vf-core-cm-vm-availability.json",
-        "vf-core-cm-vm-available-memory.json",
-        "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
-        "vf-core-cm-vm-cpu-percentage.json"
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-available-memory.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-cpu-percentage.json"
     )
     
      $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
@@ -272,7 +282,10 @@ if (-not $ExistingMetricAlert) {
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope $MetricsnewScopeoutv1"
+        Write-Output "$alertName new scope :
+    [
+        $MetricsnewScopeoutv1
+    ]"
 
     }
 } else {
@@ -523,16 +536,18 @@ if ($null -eq $resourceGroupExistsRG) {
 ###############################################################################################
 do {
     $addResourceGroup = Read-Host "Do you want to add another resource group? (yes/no)"
-    $accessToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
-    $header = @{
-        "Authorization" = "Bearer $accessToken"
-        "Content-Type" = "application/json"
-    } 
+    $secureToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com" -AsSecureString).Token
+    $accessToken = [System.Net.NetworkCredential]::new("", $secureToken).Password
+
+$header = @{
+    "Authorization" = "Bearer $accessToken"
+    "Content-Type" = "application/json"
+}
     if ([string]::IsNullOrEmpty($addResourceGroup) -or $addResourceGroup -eq "yes" -or $addResourceGroup -eq "y") {
         $newResourceGroupName = Read-Host "Enter the new Resource Group name to monitor"
-        $addVMLocation = Read-Host "Do you want to cahnge virtual machine location? (yes/no)
+        $addVMLocation = Read-Host "Do you want to cahnge virtual machine location? 
 Curent : $vmLocation 
-"
+(yes/no) "
         if ([string]::IsNullOrEmpty($addVMLocation) -or $addVMLocation -eq "yes" -or $addVMLocation -eq "y") {
             $vmLocation = Read-Host "Enter the location of the VMs to monitor"
         }
@@ -542,57 +557,63 @@ Curent : $vmLocation
     ###############################################################################################
     #TAGS & diag-setg -per-RG -NEW
     ###############################################################################################
-        $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
+        $TS_PolicynameASS1 ="vf-core-cm-tag-resources-$($newResourceGroupName)"
+        $TS_PolicynameASS = $TS_PolicynameASS1
         $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
         $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-        if ($null -ne $TS_existingpolicyAssignment) {
-            Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+        if ($null -eq $TS_existingpolicyAssignment) {
+            $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+            Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
+            Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
+            Write-Output "Remediation task started for policy $TS_PolicynameASS."
         } else {
-            New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
-            Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+            Write-Output "The policy  vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
         }
-        
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
-            $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
+            $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
+            $DS_PolicynameASS = $DS_PolicynameASS1
             $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
-            $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-
-            if ($null -ne $DS_existingpolicyAssignment) {
-                Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-            } else {
-                New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+            $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+        
+            if ($null -eq $DS_existingpolicyAssignment) {
+                $DS_policyAssignment = New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+                Start-AzPolicyRemediation  -Name "$DS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $DS_policyAssignment.Id -scope $DS_policyAssignment.Scope
                 Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+                Write-Output "Remediation task started for policy $DS_PolicynameASS."
+            } else {
+                Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+                
             }
         }
     ###############################################################################################
     #ADD_ Log_SearchAlertRule-custom- -per policy -RG
     ###############################################################################################
     $jsonFilePathsPolicy = @(
-    "vf-cm-blob-services-availability.json",
-    "vf-cm-storage-account-avl.json",
-    "vf-cm-file-services-avl.json",
-    "vf-cm-SQL-server-cpu-per.json",
-    "vf-cm-SQL-server-memory-per.json",
-    "vf-cm-SQL-server-data-used-per.json",
-    "vf-cm-SQL-server-failed-conn.json",
-    "vf-cm-SQL-server-dtu-per.json",
-    "vf-cm-SQL-server-log-IO-per-conn.json",
-    "vf-cm-SQL-server-data-IO-per.json",
-    "vf-cm-PSQL-flx-server-cpu-per.json",
-    "vf-cm-PSQL-flx-server-memory-per.json",
-    "vf-cm-PSQL-flx-server-storage-per.json",
-    "vf-cm-PSQL-flx-server-act-conn-xceed.json",
-    "vf-cm-PSQL-flx-server-failed-conn.json",
-    "vf-cm-PSQL-flx-server-rep-lag.json",
-    "vf-cm-MySQL-flx-server-host-cpu-per.json",
-    "vf-cm-MySQL-flx-server-host-memory-per.json",
-    "vf-cm-MySQL-flx-server-storage-per.json",
-    "vf-cm-MySQL-flx-server-act-conn-xceed.json",
-    "vf-cm-MySQL-flx-server-aborted-conn.json",
-    "vf-cm-MySQL-flx-server-replica-lag.json",
-    "vf-cm-app-gw-unhealthyhost-count-lag.json",
-    "vf-cm-app-gw-failed-req-.json"
-)
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-file-services-avl.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-used-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-failed-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-dtu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-log-IO-per-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-IO-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-storage-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-act-conn-xceed.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-failed-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-rep-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-storage-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-act-conn-xceed.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-aborted-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-replica-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-unhealthyhost-count-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-failed-req-.json"
+    )
     $policyNames = @(
         "vf-cm-blob-services-availability-$newResourceGroupName",
         "vf-cm-storage-account-avl-$newResourceGroupName",
@@ -706,12 +727,12 @@ Curent : $vmLocation
 
     if (-not $ExistingMetricAlert) {
         $jsonFilePathsMetricAlert = @(
-            "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
-            "vf-core-cm-vm-availability.json",
-            "vf-core-cm-vm-available-memory.json",
-            "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
-            "vf-core-cm-vm-cpu-percentage.json"
-        )
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-available-memory.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-cpu-percentage.json"
+    )
     
     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
     $apiVersion = "?api-version=2018-03-01"
@@ -741,7 +762,10 @@ Curent : $vmLocation
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope $MetricsnewScopeoutv1"
+        Write-Output "$alertName new scope :
+        [
+            $MetricsnewScopeoutv1
+        ]"
 
     }
 } else {
@@ -981,3 +1005,5 @@ if ($null -eq $resourceGroupExistsRG) {
         } 
     }
 } while ($addResourceGroup -eq "yes" -or $addResourceGroup -eq "y" -or [string]::IsNullOrEmpty($addResourceGroup))
+
+$WarningPreference = 'Continue'
