@@ -65,8 +65,10 @@ $TS_PolicynameASS = $TS_PolicynameASS1
 $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
 $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 if ($null -eq $TS_existingpolicyAssignment) {
-    New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+    $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+    Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
     Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+    Write-Output "Remediation task started for policy $TS_PolicynameASS."
 } else {
     Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
     
@@ -91,9 +93,10 @@ foreach ($DS_policyDefinition in $DS_policyDefinitions) {
     $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
     if ($null -eq $DS_existingpolicyAssignment) {
-        New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+        $DS_policyAssignment = New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+        Start-AzPolicyRemediation  -Name "$DS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $DS_policyAssignment.Id -scope $DS_policyAssignment.Scope
         Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
-        
+        Write-Output "Remediation task started for policy $DS_PolicynameASS."
     } else {
         Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
         
@@ -556,23 +559,27 @@ Curent : $vmLocation
         $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
         $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
         if ($null -eq $TS_existingpolicyAssignment) {
-            New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+            $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
+            Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
             Write-Output "Assigned policy $TS_policyDefinition to resource group $newResourceGroupName."
+            Write-Output "Remediation task started for policy $TS_PolicynameASS."
         } else {
             Write-Output "The policy $TS_policyDefinition is already assigned to the resource group $newResourceGroupName."
-            
         }
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
             $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
             $DS_PolicynameASS = $DS_PolicynameASS1
             $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
-            $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
-
+            $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
+        
             if ($null -eq $DS_existingpolicyAssignment) {
-                New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+                $DS_policyAssignment = New-AzPolicyAssignment -Name $DS_PolicynameASS -PolicyDefinition $DS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $DS_policyParameters
+                Start-AzPolicyRemediation  -Name "$DS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $DS_policyAssignment.Id -scope $DS_policyAssignment.Scope
                 Write-Output "Assigned policy $DS_policyDefinition to resource group $newResourceGroupName."
+                Write-Output "Remediation task started for policy $DS_PolicynameASS."
             } else {
                 Write-Output "The policy $DS_policyDefinition is already assigned to the resource group $newResourceGroupName."
+                
             }
         }
     ###############################################################################################
