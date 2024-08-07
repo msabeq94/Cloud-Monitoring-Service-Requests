@@ -102,30 +102,30 @@ foreach ($DS_policyDefinition in $DS_policyDefinitions) {
 ###############################################################################################
 
 $jsonFilePathsPolicy = @(
-    "vf-cm-blob-services-availability.json",
-    "vf-cm-storage-account-avl.json",
-    "vf-cm-file-services-avl.json",
-    "vf-cm-SQL-server-cpu-per.json",
-    "vf-cm-SQL-server-memory-per.json",
-    "vf-cm-SQL-server-data-used-per.json",
-    "vf-cm-SQL-server-failed-conn.json",
-    "vf-cm-SQL-server-dtu-per.json",
-    "vf-cm-SQL-server-log-IO-per-conn.json",
-    "vf-cm-SQL-server-data-IO-per.json",
-    "vf-cm-PSQL-flx-server-cpu-per.json",
-    "vf-cm-PSQL-flx-server-memory-per.json",
-    "vf-cm-PSQL-flx-server-storage-per.json",
-    "vf-cm-PSQL-flx-server-act-conn-xceed.json",
-    "vf-cm-PSQL-flx-server-failed-conn.json",
-    "vf-cm-PSQL-flx-server-rep-lag.json",
-    "vf-cm-MySQL-flx-server-host-cpu-per.json",
-    "vf-cm-MySQL-flx-server-host-memory-per.json",
-    "vf-cm-MySQL-flx-server-storage-per.json",
-    "vf-cm-MySQL-flx-server-act-conn-xceed.json",
-    "vf-cm-MySQL-flx-server-aborted-conn.json",
-    "vf-cm-MySQL-flx-server-replica-lag.json",
-    "vf-cm-app-gw-unhealthyhost-count-lag.json",
-    "vf-cm-app-gw-failed-req-.json"
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-file-services-avl.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-used-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-failed-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-dtu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-log-IO-per-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-IO-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-storage-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-act-conn-xceed.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-failed-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-rep-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-cpu-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-memory-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-storage-per.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-act-conn-xceed.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-aborted-conn.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-replica-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-unhealthyhost-count-lag.json",
+    "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-failed-req-.json"
 )
 $policyNames = @(
     "vf-cm-blob-services-availability-$newResourceGroupName",
@@ -242,11 +242,11 @@ $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-
 
 if (-not $ExistingMetricAlert) {
     $jsonFilePathsMetricAlert = @(
-        "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
-        "vf-core-cm-vm-availability.json",
-        "vf-core-cm-vm-available-memory.json",
-        "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
-        "vf-core-cm-vm-cpu-percentage.json"
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-available-memory.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-cpu-percentage.json"
     )
     
      $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
@@ -575,31 +575,31 @@ Curent : $vmLocation
     #ADD_ Log_SearchAlertRule-custom- -per policy -RG
     ###############################################################################################
     $jsonFilePathsPolicy = @(
-    "vf-cm-blob-services-availability.json",
-    "vf-cm-storage-account-avl.json",
-    "vf-cm-file-services-avl.json",
-    "vf-cm-SQL-server-cpu-per.json",
-    "vf-cm-SQL-server-memory-per.json",
-    "vf-cm-SQL-server-data-used-per.json",
-    "vf-cm-SQL-server-failed-conn.json",
-    "vf-cm-SQL-server-dtu-per.json",
-    "vf-cm-SQL-server-log-IO-per-conn.json",
-    "vf-cm-SQL-server-data-IO-per.json",
-    "vf-cm-PSQL-flx-server-cpu-per.json",
-    "vf-cm-PSQL-flx-server-memory-per.json",
-    "vf-cm-PSQL-flx-server-storage-per.json",
-    "vf-cm-PSQL-flx-server-act-conn-xceed.json",
-    "vf-cm-PSQL-flx-server-failed-conn.json",
-    "vf-cm-PSQL-flx-server-rep-lag.json",
-    "vf-cm-MySQL-flx-server-host-cpu-per.json",
-    "vf-cm-MySQL-flx-server-host-memory-per.json",
-    "vf-cm-MySQL-flx-server-storage-per.json",
-    "vf-cm-MySQL-flx-server-act-conn-xceed.json",
-    "vf-cm-MySQL-flx-server-aborted-conn.json",
-    "vf-cm-MySQL-flx-server-replica-lag.json",
-    "vf-cm-app-gw-unhealthyhost-count-lag.json",
-    "vf-cm-app-gw-failed-req-.json"
-)
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-file-services-avl.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-used-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-failed-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-dtu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-log-IO-per-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-SQL-server-data-IO-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-storage-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-act-conn-xceed.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-failed-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-PSQL-flx-server-rep-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-cpu-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-host-memory-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-storage-per.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-act-conn-xceed.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-aborted-conn.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-MySQL-flx-server-replica-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-unhealthyhost-count-lag.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-app-gw-failed-req-.json"
+    )
     $policyNames = @(
         "vf-cm-blob-services-availability-$newResourceGroupName",
         "vf-cm-storage-account-avl-$newResourceGroupName",
@@ -713,12 +713,12 @@ Curent : $vmLocation
 
     if (-not $ExistingMetricAlert) {
         $jsonFilePathsMetricAlert = @(
-            "vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
-            "vf-core-cm-vm-availability.json",
-            "vf-core-cm-vm-available-memory.json",
-            "vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
-            "vf-core-cm-vm-cpu-percentage.json"
-        )
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-data-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-availability.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-available-memory.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-VM-os-disk-iops-consumed-percentage.json",
+        "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-core-cm-vm-cpu-percentage.json"
+    )
     
     $uriBaseMetricAlert = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/Microsoft.Insights/metricalerts"
     $apiVersion = "?api-version=2018-03-01"
