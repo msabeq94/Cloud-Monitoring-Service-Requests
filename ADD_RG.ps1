@@ -60,7 +60,8 @@ $TS_policyParameters = @{
     "tagName" = "vf-core-cloud-monitoring"
     "tagValue" = "true"
 }
-$TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
+$TS_PolicynameASS1 ="vf-core-cm-tag-resources-$($newResourceGroupName)"
+$TS_PolicynameASS = $TS_PolicynameASS1
 $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
 $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 if ($null -eq $TS_existingpolicyAssignment) {
@@ -84,7 +85,8 @@ $DS_policyDefinitions = @(
     "vf-core-cm-diag-setg-for-app-gw-to-log-anl"
 )
 foreach ($DS_policyDefinition in $DS_policyDefinitions) {
-    $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
+    $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
+    $DS_PolicynameASS = $DS_PolicynameASS1
     $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
     $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $DS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
@@ -549,7 +551,8 @@ Curent : $vmLocation
     ###############################################################################################
     #TAGS & diag-setg -per-RG -NEW
     ###############################################################################################
-        $TS_PolicynameASS ="vf-core-cm-tag-resources-$newResourceGroupName"
+        $TS_PolicynameASS1 ="vf-core-cm-tag-resources-$($newResourceGroupName)"
+        $TS_PolicynameASS = $TS_PolicynameASS1
         $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
         $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
         if ($null -eq $TS_existingpolicyAssignment) {
@@ -560,7 +563,8 @@ Curent : $vmLocation
             
         }
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
-            $DS_PolicynameASS ="$DS_policyDefinition-$newResourceGroupName"
+            $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
+            $DS_PolicynameASS = $DS_PolicynameASS1
             $DS_GETpolicyDefinition = Get-AzPolicyDefinition -Name $DS_policyDefinition
             $DS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -Scope $newResourceGroupId -ErrorAction SilentlyContinue
 
