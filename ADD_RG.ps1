@@ -293,7 +293,7 @@ if (-not $ExistingMetricAlert) {
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output " METRIC-ALERT-RULE : $alertName new scope :
+        Write-Output "METRIC-ALERT-RULE : $alertName new scope :
     [
         $MetricsnewScopeoutv1
     ]"

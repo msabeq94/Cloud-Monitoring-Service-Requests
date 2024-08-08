@@ -37,11 +37,9 @@ $vmLocation = Read-Host "Enter the location of the VMs to monitor"
 
 $RMResourceGroup = Get-AzResourceGroup -Name $RMResourceGroupName
 $RMResourceGroupId = $RMResourceGroup.ResourceId
-$RMResourceGrouplocation = $RMResourceGroup.Location
 
 $actionGroup = Get-AzActionGroup -ResourceGroupName  $PCRalertResourceGroup -Name 'vf-core-cm-notifications'
 $actionGroupId = $actionGroup.Id
-$actionGroupName = $actionGroup.Name
 
 $RM_AzLogAlerRuleuri = "https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroupv2)/providers/Microsoft.Insights/activityLogAlerts?api-version=2017-04-01"
 $RGhealthURI ="https://management.azure.com/subscriptions/$($subscriptionID)/resourceGroups/$($PCRalertResourceGroup)/providers/microsoft.insights/activityLogAlerts/vf-core-cm-resource-health-alert?api-version=2017-04-01"
@@ -50,7 +48,8 @@ $AAllMatricURI = "https://management.azure.com/subscriptions/$($subscriptionID)/
 ###############################################################################################
 # RM TAGS & diag-setg -per-RG
 ###############################################################################################
-
+Write-Output "**********TAG-POLICIES||DIAG-SETTING-POLICIES**********"
+start-sleep -s 3
 try {
     $policyAssignmentsInScope = Get-AzPolicyAssignment -Scope $RMResourceGroupId
 } catch {
@@ -78,6 +77,8 @@ if ($policyDefinitionsInScope) {
 ###############################################################################################
 # Log_SearchAlertRule-custom -per-RG
 ###############################################################################################
+Write-Output "**********CUSTOM-LOG-SEARCH-RULE-ALERT-POLICIES **********"
+start-sleep -s 3
 $SearchAlertRuleNames = @(
     "vf-cm-blob-services-availability-$RMResourceGroupName",
     "vf-cm-storage-account-avl-$RMResourceGroupName",
@@ -116,7 +117,8 @@ foreach ($SearchAlertRuleName in $SearchAlertRuleNames) {
 ###############################################################################################
 #ADD_AzLogAlertRule 
 ############################################################################################### 
-
+Write-Output "**********ACTIVITY-LOG-ALERT-RULE**********"
+start-sleep -s 3
     $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $RM_AzLogAlerRuleuri
     foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
         $alertName = $ActivityLogAlerts.name
@@ -162,7 +164,7 @@ $body = @"
                 Start-Sleep -Milliseconds 750
                 $getscop = Invoke-RestMethod -Uri $updateUri -Method Get -Headers $header
                 $RMScopeout = $($getscop).properties.scopes | ConvertTo-Json
-                Write-Output "Activity log alert rule : $alertName new scope $RMScopeout"
+                Write-Output "ACTIVITY-LOG-ALERT-RULE : $alertName new scope $RMScopeout"
             }  
 }
 }
@@ -170,7 +172,8 @@ $body = @"
 ###############################################################################################
 #ADD_AzMetricAlertRule-per VM location
 ###############################################################################################
-
+Write-Output "**********METRIC-ALERT-RULE**********"
+start-sleep -s 3
 $existingmetricalerts = Invoke-RestMethod -Uri $AAllMatricURI -Method get -Headers $header 
   $existingmetricalertslocations = $existingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
 
@@ -234,12 +237,12 @@ $bodyMatricUP = @"
 
        $Matupdate = Invoke-RestMethod -Uri $RoneuMatricuri  -Method put -Headers $header -Body $bodyMatricUP
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-        Write-Output "Metric alert rule : $RMalertName 
+        Write-Output "METRIC-ALERT-RULE : $RMalertName 
 new scope $MetricsnewScopeout"
     }
 
     } else {
-        Write-Output "Metric alert rule : $($existingmetricalertslocation.Name) does not include $RMResourceGroupName 
+        Write-Output "METRIC-ALERT-RULE : $($existingmetricalertslocation.Name) does not include $RMResourceGroupName 
         scope $MetricsnewScopeout"
     }
 
@@ -250,7 +253,8 @@ new scope $MetricsnewScopeout"
 ###############################################################################################
 #  RG-Health-Alert
 ###############################################################################################
-
+Write-Output "**********RESOURCE-GROUP-HEALTH-ALERT**********"
+start-sleep -s 3
 $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
 $resourceGroupExistsRG = $RGScopeRG | Where-Object { $_.equals -eq "$($RMResourceGroupName)" }
@@ -420,7 +424,7 @@ if ($resourceGroupCountRGv2 -eq "1" -and $resourceTyCountRG -ne "1") {
       
     $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
     $RGScopeUPdateRG = $RGAlertPUTRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
-    write-output $RGScopeUPdateRG
+    write-output "RESOURCE-GROUP-HEALTH-ALERT : $RGScopeUPdateRG"
 
 
 } else {
@@ -450,6 +454,8 @@ do {
      ###############################################################################################
      #TAGS & diag-setg -per-RG -NEW
      ###############################################################################################
+     Write-Output "**********TAG-POLICIES||DIAG-SETTING-POLICIES**********"
+     start-sleep -s 3
      try {
          $policyAssignmentsInScope = Get-AzPolicyAssignment -Scope $RMResourceGroupId
      } catch {
@@ -477,6 +483,8 @@ do {
      ###############################################################################################
      # Log_SearchAlertRule-custom -per-RG
      ###############################################################################################
+     Write-Output "**********CUSTOM-LOG-SEARCH-RULE-ALERT-POLICIES **********"
+    start-sleep -s 3
      $SearchAlertRuleNames = @(
          "vf-cm-blob-services-availability-$RMResourceGroupName",
          "vf-cm-storage-account-avl-$RMResourceGroupName",
@@ -515,7 +523,8 @@ do {
      ###############################################################################################
      #ADD_AzLogAlertRule 
      ############################################################################################### 
-     
+     Write-Output "**********ACTIVITY-LOG-ALERT-RULE**********"
+    start-sleep -s 3
          $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $RM_AzLogAlerRuleuri
          foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
              $alertName = $ActivityLogAlerts.name
@@ -561,7 +570,7 @@ do {
                      Start-Sleep -Milliseconds 750
                      $getscop = Invoke-RestMethod -Uri $updateUri -Method Get -Headers $header
                      $RMScopeout = $($getscop).properties.scopes | ConvertTo-Json
-                     Write-Output "Activity log alert rule : $alertName new scope $RMScopeout"
+                     Write-Output "ACTIVITY-LOG-ALERT-RULE : $alertName new scope $RMScopeout"
                  }  
      }
      }
@@ -569,7 +578,8 @@ do {
      ###############################################################################################
      #ADD_AzMetricAlertRule-per VM location
      ###############################################################################################
-     
+     Write-Output "**********METRIC-ALERT-RULE**********"
+    start-sleep -s 3
      $existingmetricalerts = Invoke-RestMethod -Uri $AAllMatricURI -Method get -Headers $header 
      $existingmetricalertslocations = $existingmetricalerts.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
      
@@ -633,11 +643,12 @@ do {
      
             $Matupdate = Invoke-RestMethod -Uri $RoneuMatricuri  -Method put -Headers $header -Body $bodyMatricUP
              $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-             Write-Output "Metric alert rule : $RMalertName new scope $MetricsnewScopeout"
-         }
+             Write-Output "METRIC-ALERT-RULE : $RMalertName 
+             new scope $MetricsnewScopeout"
+                 }
      
          } else {
-             Write-Output "Metric alert rule $($existingmetricalertslocation.Name) does not include $RMResourceGroupName"
+             Write-Output "METRIC-ALERT-RULE : $($existingmetricalertslocation.Name) does not include $RMResourceGroupName"
          }
      
       
@@ -647,7 +658,8 @@ do {
      ###############################################################################################
      #  RG-Health-Alert
      ###############################################################################################
-     
+     Write-Output "**********RESOURCE-GROUP-HEALTH-ALERT**********"
+    start-sleep -s 3
      $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
      $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
      $resourceGroupExistsRG = $RGScopeRG | Where-Object { $_.equals -eq "$($RMResourceGroupName)" }
@@ -815,7 +827,7 @@ do {
            
          $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
          $RGScopeUPdateRG = $RGAlertPUTRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
-         write-output $RGScopeUPdateRG
+         write-output "RESOURCE-GROUP-HEALTH-ALERT : $RGScopeUPdateRG"
      
      
      } else {
