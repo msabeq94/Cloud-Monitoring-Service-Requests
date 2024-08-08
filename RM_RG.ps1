@@ -431,7 +431,7 @@ do {
     $RMResourceGroup = Read-Host "Do you want to remove another resource group? (yes/no)"
      $secureToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com" -AsSecureString).Token
      $accessToken = [System.Net.NetworkCredential]::new("", $secureToken).Password
- 
+     
  $header = @{
      "Authorization" = "Bearer $accessToken"
      "Content-Type" = "application/json"
@@ -444,9 +444,9 @@ do {
          if ([string]::IsNullOrEmpty($RMvmLocation) -or $RMvmLocation -eq "yes" -or $RMvmLocation -eq "y") {
              $vmLocation = Read-Host "Enter the location of the VMs to monitor"
          }
-         $RMResourceGroup = Get-AzResourceGroup -Name $RMResourceGroupName
-         $RMResourceGroupId = $newResourceGroup.ResourceId
-         $RMResourceGrouplocation = $newResourceGroup.Location
+         $GETRMResourceGroup = Get-AzResourceGroup -Name $RMResourceGroupName
+         $RMResourceGroupId = $GETRMResourceGroup.ResourceId
+         $RMResourceGrouplocation = $GETRMResourceGroup.Location
      ###############################################################################################
      #TAGS & diag-setg -per-RG -NEW
      ###############################################################################################
