@@ -339,7 +339,7 @@ if (-not $ExistingMetricAlert) {
 
        $Matupdate = Invoke-RestMethod -Uri $OneUriMetricAlert -Method put -Headers $header -Body $BodyMetricAlertu
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-  Write-Output "$MalertName 
+  Write-Output " Metric alert rule : $MalertName 
 new scope $MetricsnewScopeout"
     }
 }}
@@ -819,7 +819,7 @@ Curent : $vmLocation
 
        $Matupdate = Invoke-RestMethod -Uri $OneUriMetricAlert -Method put -Headers $header -Body $BodyMetricAlertu
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-  Write-Output "$MalertName 
+        Write-Output " Metric alert rule : $MalertName 
 new scope $MetricsnewScopeout"
     }
 }
