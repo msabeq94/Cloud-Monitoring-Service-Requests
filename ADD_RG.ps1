@@ -245,7 +245,7 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 "@
     $ALupdate = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
     $newResourceGroupIdout = $($ALupdate).properties.scopes | ConvertTo-Json
-    Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
+    Write-Output "ACTIVITY-LOG-ALERT-RULE : $AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
 }
 }
 ###############################################################################################
@@ -293,7 +293,7 @@ if (-not $ExistingMetricAlert) {
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope :
+        Write-Output " METRIC-ALERT-RULE : $alertName new scope :
     [
         $MetricsnewScopeoutv1
     ]"
@@ -350,8 +350,8 @@ if (-not $ExistingMetricAlert) {
 
        $Matupdate = Invoke-RestMethod -Uri $OneUriMetricAlert -Method put -Headers $header -Body $BodyMetricAlertu
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-  Write-Output "$MalertName 
-new scope $MetricsnewScopeout"
+  Write-Output "METRIC-ALERT-RULE : $MalertName 
+    new scope $MetricsnewScopeout"
     }
 }}
 ###############################################################################################
@@ -542,7 +542,7 @@ if ($null -eq $resourceGroupExistsRG) {
       
       $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
       $RGScopeUPdateRG = $RGAlertPUTRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
-      write-output $RGScopeUPdateRG
+      write-output "RESOURCE-GROUP-HEALTH-ALERT : $RGScopeUPdateRG"
       }else {
         Write-Output "Resource Group neme $($resourceGroupRG) does exist in the alert scope "
     }    
@@ -563,7 +563,7 @@ Curent : $vmLocation
 (yes/no) "
         if ([string]::IsNullOrEmpty($addVMLocation) -or $addVMLocation -eq "yes" -or $addVMLocation -eq "y") {
             $vmLocation = Read-Host "Enter the location of the VMs to monitor"
-        }
+        }}
         $newResourceGroup = Get-AzResourceGroup -Name $newResourceGroupName
         $newResourceGroupId = $newResourceGroup.ResourceId
         $newResourceGrouplocation = $newResourceGroup.Location
@@ -738,7 +738,7 @@ Curent : $vmLocation
 "@
         $ALupdate = Invoke-RestMethod -Uri $updateUriAzLogAlertRule -Method  put -Headers $header -Body $BodyAzLogAlertRule
         $newResourceGroupIdout = $($ALupdate).properties.scopes | ConvertTo-Json
-        Write-Output "$AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
+        Write-Output "ACTIVITY-LOG-ALERT-RULE : $AlertNameAzLogAlertRule new scope $newResourceGroupIdout"
     }
     }
     ###############################################################################################
@@ -786,7 +786,7 @@ Curent : $vmLocation
         Write-Output "Created metric alert rule: $alertName"
 
         $MetricsnewScopeoutv1 = $($Matupdatev1).properties.scopes | ConvertTo-Json
-        Write-Output "$alertName new scope :
+        Write-Output "METRIC-ALERT-RULE : $alertName new scope :
         [
             $MetricsnewScopeoutv1
         ]"
@@ -843,10 +843,8 @@ Curent : $vmLocation
 
        $Matupdate = Invoke-RestMethod -Uri $OneUriMetricAlert -Method put -Headers $header -Body $BodyMetricAlertu
         $MetricsnewScopeout = $($Matupdate).properties.scopes | ConvertTo-Json
-  Write-Output "$MalertName 
-new scope $MetricsnewScopeout"
-    }
-}
+  Write-Output "METRIC-ALERT-RULE : $MalertName  new scope $MetricsnewScopeout"
+    }}
 }
 ###############################################################################################
 #  RG-Health-Alert
@@ -859,7 +857,7 @@ $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.fie
 $newResourceGroupRG = @{
     "field" = "resourceGroup"
     "equals" = "$($resourceGroupRG)"
-  } 
+}
 $resourceGroupExistsRG = $RGScopeRG | Where-Object { $_.equals -eq "$($resourceGroupRG)" }
 if ($null -eq $resourceGroupExistsRG) {
         $NEWRGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
@@ -996,7 +994,7 @@ if ($null -eq $resourceGroupExistsRG) {
     ]
 }
 "@
-        if ($resourceGroupCountRG -eq "1" -and $resourceTyCountRG -ne "1") {
+    if ($resourceGroupCountRG -eq "1" -and $resourceTyCountRG -ne "1") {
         $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV1RG
         }elseif ($resourceGroupCountRG -ne "1" -and $resourceTyCountRG -eq "1") {
         $UPAzLogAlertRuleExistingConditionRG = $AzLogAlertRuleExistingConditionV2RG
@@ -1007,7 +1005,7 @@ if ($null -eq $resourceGroupExistsRG) {
         }
         $AzLogAlertRuleExistingActionsRG = $AzLogAlertRuleeachLogAlertRG.properties.actions | ConvertTo-Json
         $AzLogAlertRuleExistingDescriptionRG = $AzLogAlertRuleeachLogAlertRG.properties.description | ConvertTo-Json
-        $BodyAzLogAlertRuleRG = @"
+$BodyAzLogAlertRuleRG = @"
 {
     "id": $AzLogAlertRuleExistingIdRG,
     "name": $AzLogAlertRuleExistingNameRG,
@@ -1025,11 +1023,10 @@ if ($null -eq $resourceGroupExistsRG) {
 "@  
       $RGAlertPUTRG= Invoke-RestMethod -Uri $RGhealthURI -Method put   -Headers $header  -Body $BodyAzLogAlertRuleRG
       $RGScopeUPdateRG = $RGAlertPUTRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } |ConvertTo-Json -Depth 10
-      write-output $RGScopeUPdateRG
-      }else {
+      write-output "RESOURCE-GROUP-HEALTH-ALERT : $RGScopeUPdateRG" 
+      } else {
         Write-Output "Resource Group neme $($resourceGroupRG) does exist in the alert scope "
         } 
-    }
-} while ($addResourceGroup -eq "yes" -or $addResourceGroup -eq "y" -or [string]::IsNullOrEmpty($addResourceGroup))
+    } while ($addResourceGroup -eq "yes" -or $addResourceGroup -eq "y" -or [string]::IsNullOrEmpty($addResourceGroup))
 
 $WarningPreference = 'Continue'
