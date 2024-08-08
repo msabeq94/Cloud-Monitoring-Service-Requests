@@ -11,7 +11,7 @@ $sortedOptions  =  $OpColist.GetEnumerator() | Sort-Object Name
 while ($true) {
     Write-Host "Please Choose the OpCo?"
     foreach ($entry in $sortedOptions) {
-    Write-Host "$($entry.Key)) $($entry.Value)"
+    Write-Host "$($entry.Key) $($entry.Value)"
     }
     $choiceOpCO  =  Read-Host "Enter the number corresponding to your choice"
     if ($OpColist.ContainsKey($choiceOpCO)) {
@@ -56,6 +56,9 @@ $currentDateTime = Get-Date -Format "yyyyMMddHHmmss"
 ###############################################################################################
 #TAGS & diag-setg -per-RG
 ###############################################################################################
+Write-Output "**********TAG-POLICIES**********"
+start-sleep -s 3
+
 $TS_policyParameters = @{
     "tagName" = "vf-core-cloud-monitoring"
     "tagValue" = "true"
@@ -67,12 +70,15 @@ $TS_existingpolicyAssignment = Get-AzPolicyAssignment -Name $TS_PolicynameASS -S
 if ($null -eq $TS_existingpolicyAssignment) {
     $TS_policyAssignment = New-AzPolicyAssignment -Name $TS_PolicynameASS -PolicyDefinition $TS_GETpolicyDefinition -Scope $newResourceGroupId -Location $newResourceGrouplocation  -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id  -PolicyParameterObject $TS_policyParameters
     Start-AzPolicyRemediation  -Name "$TS_PolicynameASS _$currentDateTime" -PolicyAssignmentId $TS_policyAssignment.Id -scope $TS_policyAssignment.Scope
-    Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
+    Write-Output "Assigned policy vf-core-cm-tag-resources to resource group $newResourceGroupName."
     Write-Output "Remediation task started for policy $TS_PolicynameASS."
 } else {
     Write-Output "The policy vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
-    
+
 }
+
+Write-Output "**********DIAG-SETTING-POLICIES**********"
+start-sleep -s 3
 
 $DS_policyParameters = @{
     "logAnalytics" = "$logAnalyticsWorkspaceId"
@@ -105,7 +111,8 @@ foreach ($DS_policyDefinition in $DS_policyDefinitions) {
 ###############################################################################################
 #ADD_ Log_SearchAlertRule-custom- -per policy -RG
 ###############################################################################################
-
+Write-Output "**********CUSTOM-LOG-SEARCH-RULE-ALERT-POLICIES **********"
+start-sleep -s 3
 $jsonFilePathsPolicy = @(
     "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
     "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
@@ -191,7 +198,7 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
     Start-Sleep -Milliseconds 5
     $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
     Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
-    Write-Output "Assigned policy $policyName to resource group $newResourceGroupName."
+    Write-Output "Policy $policyName assigned to resource group $newResourceGroupName."
     Write-Output "Remediation task started for policy $policyName."
 }
 }
@@ -199,6 +206,8 @@ foreach ($index in 0..($jsonFilePathsPolicy.Length - 1)) {
 ###############################################################################################
 #ADD_AzLogAlertRule 
 ###############################################################################################
+Write-Output "**********ACTIVITY-LOG-ALERT-RULE**********"
+start-sleep -s 3
 $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $URI_AzLogAlertRule 
 foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
     $AlertIdAzLogAlertRule = $ActivityLogAlerts.id
@@ -242,6 +251,8 @@ foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
 ###############################################################################################
 #ADD_AzMetricAlertRule-per VM location
 ###############################################################################################
+Write-Output "**********METRIC-ALERT-RULE**********"
+start-sleep -s 3
 $AllMetricAlert = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
 $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
 
@@ -346,6 +357,8 @@ new scope $MetricsnewScopeout"
 ###############################################################################################
 #  RG-Health-Alert
 ###############################################################################################
+Write-Output "**********RESOURCE-GROUP-HEALTH-ALERT**********"
+start-sleep -s 3
 $resourceGroupRG = $newResourceGroupName
 $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
@@ -557,6 +570,9 @@ Curent : $vmLocation
     ###############################################################################################
     #TAGS & diag-setg -per-RG -NEW
     ###############################################################################################
+    Write-Output "**********TAG-POLICIES**********"
+    start-sleep -s 3
+
         $TS_PolicynameASS1 ="vf-core-cm-tag-resources-$($newResourceGroupName)"
         $TS_PolicynameASS = $TS_PolicynameASS1
         $TS_GETpolicyDefinition = Get-AzPolicyDefinition -Name "vf-core-cm-tag-resources"
@@ -567,8 +583,10 @@ Curent : $vmLocation
             Write-Output "Assigned policy  vf-core-cm-tag-resources to resource group $newResourceGroupName."
             Write-Output "Remediation task started for policy $TS_PolicynameASS."
         } else {
-            Write-Output "The policy  vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
+            Write-Output "The policy vf-core-cm-tag-resources is already assigned to the resource group $newResourceGroupName."
         }
+        Write-Output "**********DIAG-SETTING-POLICIES**********"
+        start-sleep -s 3
         foreach ($DS_policyDefinition in $DS_policyDefinitions) {
             $DS_PolicynameASS1 ="$DS_policyDefinition-$($newResourceGroupName)"
             $DS_PolicynameASS = $DS_PolicynameASS1
@@ -588,6 +606,8 @@ Curent : $vmLocation
     ###############################################################################################
     #ADD_ Log_SearchAlertRule-custom- -per policy -RG
     ###############################################################################################
+    Write-Output "**********CUSTOM-LOG-SEARCH-RULE-ALERT-POLICIES **********"
+    start-sleep -s 3
     $jsonFilePathsPolicy = @(
         "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-blob-services-availability.json",
         "~/Cloud-Monitoring-Service-Requests/AzPolicyDefinition/vf-cm-storage-account-avl.json",
@@ -673,13 +693,15 @@ Curent : $vmLocation
         Start-Sleep -Milliseconds 5
         $policyAssignment = New-AzPolicyAssignment -Name $policyName -Scope $newResourceGroupId -PolicyDefinition $NewpolicyDefinition -IdentityType 'UserAssigned' -IdentityId $userAssignedIdentity.Id -Location $userAssignedIdentity.Location
         Start-AzPolicyRemediation  -Name "$policyName _$currentDateTime" -PolicyAssignmentId $policyAssignment.Id -scope $policyAssignment.Scope
-        Write-Output "Assigned policy $policyName to resource group $newResourceGroupName."
+        Write-Output "Policy $policyName assigned to resource group $newResourceGroupName."
         Write-Output "Remediation task started for policy $policyName."
     }
     }
     ###############################################################################################
     #ADD_AzLogAlertRule 
     ###############################################################################################
+    Write-Output "**********ACTIVITY-LOG-ALERT-RULE**********"
+    start-sleep -s 3
     $existingActivityLogAlerts = Invoke-RestMethod -Method Get -Headers $header -Uri $URI_AzLogAlertRule 
     foreach ($ActivityLogAlerts in $existingActivityLogAlerts.value) {
         $AlertIdAzLogAlertRule = $ActivityLogAlerts.id
@@ -722,6 +744,8 @@ Curent : $vmLocation
     ###############################################################################################
     #ADD_AzMetricAlertRule-per VM location
     ###############################################################################################
+    Write-Output "**********METRIC-ALERT-RULE**********"
+    start-sleep -s 3
     $AllMetricAlert = Invoke-RestMethod -Uri $URI_MetricAlert -Method get -Headers $header 
     $ExistingMetricAlert = $AllMetricAlert.value | Where-Object { $_.Name -like "vf-core-cm-*-$vmLocation"}
 
@@ -827,6 +851,8 @@ new scope $MetricsnewScopeout"
 ###############################################################################################
 #  RG-Health-Alert
 ###############################################################################################
+Write-Output "**********RESOURCE-GROUP-HEALTH-ALERT**********"
+start-sleep -s 3
 $resourceGroupRG = $newResourceGroupName
 $RGAlertRG= Invoke-RestMethod -Uri $RGhealthURI -Method get -Headers $header 
 $RGScopeRG = $RGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
