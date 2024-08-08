@@ -361,14 +361,14 @@ if ($null -eq $resourceGroupExistsRG) {
         $resourceGroupCountRG = $NEWRGScopeRG.count
         $equalsValueRG = $NEWRGScopeRG.equals
 
-        if ($null -eq $resourceGroupCountRG) {
+        # if ($null -eq $resourceGroupCountRG) {
            
-            $resourceGroupCountRG = "1"
-        }
-        if ($null -eq $resourceTyCountRG) {
+        #     $resourceGroupCountRG = "1"
+        # }
+        # if ($null -eq $resourceTyCountRG) {
            
-            $resourceTyCountRG = "1"
-        }
+        #     $resourceTyCountRG = "1"
+        # }
         if ($resourceGroupCountRG -ne "1") {
             $UpdateNEWRGScopeRG = $NEWRGScopeRG += $newResourceGroupRG
             $UpdateNEWRGScopev2RG = $UpdateNEWRGScopeRG | ConvertTo-Json -Depth 10
@@ -840,14 +840,14 @@ if ($null -eq $resourceGroupExistsRG) {
         $NEWRGScopeRG = $NEWRGAlertRG.properties.condition.allOf.anyof | Where-Object { $_.field -eq "resourceGroup" } 
         $resourceGroupCountRG = $NEWRGScopeRG.count
         $equalsValueRG = $NEWRGScopeRG.equals
-        if ($null -eq $resourceGroupCountRG) {
+        # if ($null -eq $resourceGroupCountRG) {
            
-            $resourceGroupCountRG = "1"
-        }
-        if ($null -eq $resourceTyCountRG) {
+        #     $resourceGroupCountRG = "1"
+        # }
+        # if ($null -eq $resourceTyCountRG) {
            
-            $resourceTyCountRG = "1"
-        }
+        #     $resourceTyCountRG = "1"
+        # }
         if ($resourceGroupCountRG -ne "1") {
             $UpdateNEWRGScopeRG = $NEWRGScopeRG += $newResourceGroupRG
             $UpdateNEWRGScopev2RG = $UpdateNEWRGScopeRG | ConvertTo-Json -Depth 10
